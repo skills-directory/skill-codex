@@ -20,4 +20,31 @@ rm -rf /tmp/skills-temp
 ```
 
 ## Usage
-See `SKILL.md` for detailed operational instructions, CLI options, and workflow guidance.
+
+### Example Workflow
+
+**User prompt:**
+```
+Use codex to analyze this repository and suggest improvements for my claude code skill.
+```
+
+**Claude Code response:**
+Claude will activate the Codex skill and:
+1. Ask which model to use (`gpt-5` or `gpt-5-codex`)
+2. Ask which reasoning effort level (`low`, `medium`, or `high`)
+3. Select appropriate sandbox mode (defaults to `read-only` for analysis)
+4. Run a command like:
+```bash
+codex exec -m gpt-5-codex \
+  --config model_reasoning_effort="high" \
+  --sandbox read-only \
+  --full-auto \
+  --skip-git-repo-check \
+  "Analyze this Claude Code skill repository comprehensively..."
+```
+
+**Result:**
+Claude will summarize the Codex analysis output, highlighting key suggestions and asking if you'd like to continue with follow-up actions.
+
+### Detailed Instructions
+See `SKILL.md` for complete operational instructions, CLI options, and workflow guidance.
