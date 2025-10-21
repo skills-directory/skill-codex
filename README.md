@@ -1,3 +1,5 @@
+Leave a star ⭐ if you like it 😘
+
 # Codex Skill
 
 ## Purpose
