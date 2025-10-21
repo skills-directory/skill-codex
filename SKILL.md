@@ -5,11 +5,6 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 
 # Codex Skill Guide
 
-## Before Running Codex
-- Verify the CLI is available by running `codex --version`. If it fails, report the error and stop.
-- Confirm the working directory is suitable (typically a Git repository unless `--skip-git-repo-check` will be used).
-- Gather the task description and any needed paths before building the command.
-
 ## Running a Task
 1. Ask the user (via `AskUserQuestion`) which model to run: `gpt-5` or `gpt-5-codex`.
 2. Ask the user (via `AskUserQuestion`) which reasoning effort to use: `low`, `medium`, or `high`.
@@ -37,8 +32,7 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 - After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
 - Restate the chosen model, reasoning effort, and sandbox mode when proposing follow-up actions.
 
-## Safety Checks
+## Error Handling
 - Stop and report failures whenever `codex --version` or a `codex exec` command exits non-zero; request direction before retrying.
-- Confirm that high-impact flags (`--full-auto`, `--sandbox danger-full-access`, `--skip-git-repo-check`) align with the user's intent before executing.
+- Before you use high-impact flags (`--full-auto`, `--sandbox danger-full-access`, `--skip-git-repo-check`) ask the user for permission using AskUserQuestion unless it was already given.
 - When output includes warnings or partial results, summarize them and ask how to adjust using `AskUserQuestion`.
-- Ensure each command respects the selected sandbox mode and avoids unintended writes outside permitted paths.
