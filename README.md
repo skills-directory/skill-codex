@@ -1,6 +1,6 @@
 Leave a star ⭐ if you like it 😘
 
-# Codex Skill
+# Codex Integration for Claude Code
 
 <img width="2288" height="1146" alt="image" src="https://github.com/user-attachments/assets/a39be9b9-f437-4bf2-b369-17e02007a2f0" />
 
