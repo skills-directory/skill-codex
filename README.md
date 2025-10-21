@@ -2,6 +2,8 @@ Leave a star ⭐ if you like it 😘
 
 # Codex Skill
 
+<img width="2288" height="1146" alt="image" src="https://github.com/user-attachments/assets/a39be9b9-f437-4bf2-b369-17e02007a2f0" />
+
 ## Purpose
 Enable Claude Code to invoke the Codex CLI (`codex exec` and session resumes) for automated code analysis, refactoring, and editing workflows.
 
