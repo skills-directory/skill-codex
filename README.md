@@ -2,7 +2,8 @@ Leave a star ⭐ if you like it 😘
 
 # Codex Integration for Claude Code
 
-<img width="2288" height="1146" alt="image" src="https://github.com/user-attachments/assets/a39be9b9-f437-4bf2-b369-17e02007a2f0" />
+<img width="2288" height="808" alt="skillcodex" src="https://github.com/user-attachments/assets/85336a9f-4680-479e-b3fe-d6a68cadc051" />
+
 
 ## Purpose
 Enable Claude Code to invoke the Codex CLI (`codex exec` and session resumes) for automated code analysis, refactoring, and editing workflows.
