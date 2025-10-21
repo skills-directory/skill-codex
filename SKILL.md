@@ -16,7 +16,7 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
    - `--full-auto`
    - `-C, --cd <DIR>`
    - `--skip-git-repo-check`
-5. Include `codex exec resume --last` when continuing a previous session and reapply every required flag.
+5. When continuing a previous session, use `codex exec resume --last` via stdin. **IMPORTANT**: When resuming, you CANNOT specify model, reasoning effort, or other flags—the session retains all settings from the original run. Resume syntax: `echo "your prompt here" | codex exec resume --last`
 6. Run the command, capture stdout/stderr, and summarize the outcome for the user.
 
 ### Quick Reference
@@ -25,11 +25,12 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 | Read-only review or analysis | `read-only` | `--sandbox read-only` |
 | Apply local edits | `workspace-write` | `--sandbox workspace-write --full-auto` |
 | Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access --full-auto` |
-| Resume recent session | Match prior task | `codex exec resume --last` plus prior flags |
+| Resume recent session | Inherited from original | `echo "prompt" \| codex exec resume --last` (no flags allowed) |
 | Run from another directory | Match task needs | `-C <DIR>` plus other flags |
 
 ## Following Up
 - After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
+- When resuming, pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last`. The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
 - Restate the chosen model, reasoning effort, and sandbox mode when proposing follow-up actions.
 
 ## Error Handling
