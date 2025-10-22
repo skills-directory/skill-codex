@@ -38,8 +38,8 @@ Use codex to analyze this repository and suggest improvements for my claude code
 
 **Claude Code response:**
 Claude will activate the Codex skill and:
-1. Ask which model to use (`gpt-5` or `gpt-5-codex`)
-2. Ask which reasoning effort level (`low`, `medium`, or `high`)
+1. Ask which model to use (`gpt-5` or `gpt-5-codex`) unless already specified in your prompt.
+2. Ask which reasoning effort level (`low`, `medium`, or `high`) unless already specified in your prompt.
 3. Select appropriate sandbox mode (defaults to `read-only` for analysis)
 4. Run a command like:
 ```bash
