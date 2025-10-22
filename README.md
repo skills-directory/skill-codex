@@ -26,6 +26,9 @@ rm -rf /tmp/skills-temp
 
 ## Usage
 
+### Important: Thinking Tokens
+By default, this skill suppresses thinking tokens (stderr output) using `2>/dev/null` to avoid bloating Claude Code's context window. If you want to see the thinking tokens for debugging or insight into Codex's reasoning process, explicitly ask Claude to show them.
+
 ### Example Workflow
 
 **User prompt:**
@@ -45,7 +48,7 @@ codex exec -m gpt-5-codex \
   --sandbox read-only \
   --full-auto \
   --skip-git-repo-check \
-  "Analyze this Claude Code skill repository comprehensively..."
+  "Analyze this Claude Code skill repository comprehensively..." 2>/dev/null
 ```
 
 **Result:**

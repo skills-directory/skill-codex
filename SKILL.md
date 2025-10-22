@@ -16,21 +16,22 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
    - `--full-auto`
    - `-C, --cd <DIR>`
    - `--skip-git-repo-check`
-5. When continuing a previous session, use `codex exec resume --last` via stdin. **IMPORTANT**: When resuming, you CANNOT specify model, reasoning effort, or other flags—the session retains all settings from the original run. Resume syntax: `echo "your prompt here" | codex exec resume --last`
-6. Run the command, capture stdout/stderr, and summarize the outcome for the user.
+5. When continuing a previous session, use `codex exec resume --last` via stdin. **IMPORTANT**: When resuming, you CANNOT specify model, reasoning effort, or other flags—the session retains all settings from the original run. Resume syntax: `echo "your prompt here" | codex exec resume --last 2>/dev/null`
+6. **IMPORTANT**: By default, append `2>/dev/null` to all `codex exec` commands to suppress thinking tokens (stderr). Only show stderr if the user explicitly requests to see thinking tokens or if debugging is needed.
+7. Run the command, capture stdout/stderr (filtered as appropriate), and summarize the outcome for the user.
 
 ### Quick Reference
 | Use case | Sandbox mode | Key flags |
 | --- | --- | --- |
-| Read-only review or analysis | `read-only` | `--sandbox read-only` |
-| Apply local edits | `workspace-write` | `--sandbox workspace-write --full-auto` |
-| Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access --full-auto` |
-| Resume recent session | Inherited from original | `echo "prompt" \| codex exec resume --last` (no flags allowed) |
-| Run from another directory | Match task needs | `-C <DIR>` plus other flags |
+| Read-only review or analysis | `read-only` | `--sandbox read-only 2>/dev/null` |
+| Apply local edits | `workspace-write` | `--sandbox workspace-write --full-auto 2>/dev/null` |
+| Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access --full-auto 2>/dev/null` |
+| Resume recent session | Inherited from original | `echo "prompt" \| codex exec resume --last 2>/dev/null` (no flags allowed) |
+| Run from another directory | Match task needs | `-C <DIR>` plus other flags `2>/dev/null` |
 
 ## Following Up
 - After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
-- When resuming, pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last`. The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
+- When resuming, pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last 2>/dev/null`. The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
 - Restate the chosen model, reasoning effort, and sandbox mode when proposing follow-up actions.
 
 ## Error Handling
