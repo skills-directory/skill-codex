@@ -15,6 +15,7 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
    - `--full-auto`
    - `-C, --cd <DIR>`
    - `--skip-git-repo-check`
+3. Always use --skip-git-repo-check.
 4. When continuing a previous session, use `codex exec resume --last` via stdin. **IMPORTANT**: When resuming, you CANNOT specify model, reasoning effort, or other flags—the session retains all settings from the original run. Resume syntax: `echo "your prompt here" | codex exec resume --last 2>/dev/null`
 5. **IMPORTANT**: By default, append `2>/dev/null` to all `codex exec` commands to suppress thinking tokens (stderr). Only show stderr if the user explicitly requests to see thinking tokens or if debugging is needed.
 6. Run the command, capture stdout/stderr (filtered as appropriate), and summarize the outcome for the user.
