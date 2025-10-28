@@ -6,11 +6,11 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 # Codex Skill Guide
 
 ## Running a Task
-1. Ask the user (via `AskUserQuestion`) which model to run (`gpt-5` or `gpt-5-codex`) AND which reasoning effort to use (`low`, `medium`, or `high`) in a **single prompt with two questions**.
+1. Ask the user (via `AskUserQuestion`) which model to run (`gpt-5-codex` or `gpt-5`) AND which reasoning effort to use (`high`, `medium`, or `low`) in a **single prompt with two questions**.
 2. Select the sandbox mode required for the task; default to `--sandbox read-only` unless edits or network access are necessary.
 3. Assemble the command with the appropriate options:
    - `-m, --model <MODEL>`
-   - `--config model_reasoning_effort="<low|medium|high>"`
+   - `--config model_reasoning_effort="<high|medium|low>"`
    - `--sandbox <read-only|workspace-write|danger-full-access>`
    - `--full-auto`
    - `-C, --cd <DIR>`
