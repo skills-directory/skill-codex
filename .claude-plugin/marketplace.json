@@ -1,0 +1,13 @@
+{
+  "name": "skills-directory-plugins",
+  "owner": {
+    "name": "Skills Directory"
+  },
+  "plugins": [
+    {
+      "name": "codex-integration",
+      "source": "./plugins/codex-integration",
+      "description": "Codex CLI integration for Claude Code - enables automated code analysis, refactoring, and editing workflows"
+    }
+  ]
+}
