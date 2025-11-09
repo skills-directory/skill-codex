@@ -80,6 +80,8 @@ Supports resumable sessions for iterative work:
 - Maintain context across multiple interactions
 - Preserve user preferences and configurations
 
+📖 **For complete technical workflow details**, see [SKILL.md - The 7-Step Workflow](./plugins/codex-integration/skills/codex/SKILL.md#the-7-step-workflow)
+
 ## Practical Examples
 
 ### Example: Repository Analysis
@@ -135,6 +137,10 @@ Continue the codex analysis from before
 - **read-only**: Analysis and suggestions only
 - **workspace-write**: Apply local code changes
 - **danger-full-access**: Network access and broader permissions
+
+🔧 **For detailed configuration guidance and advanced options**, see [SKILL.md - Configuration Management](./plugins/codex-integration/skills/codex/SKILL.md#configuration-management)
+
+⚠️ **For sandbox mode security details and safety guidelines**, see [SKILL.md - Safety & Permissions](./plugins/codex-integration/skills/codex/SKILL.md#safety--permissions)
 
 ## Key Features
 
@@ -255,13 +261,27 @@ skill-codex/
 ├── .claude-plugin/marketplace.json    # Marketplace configuration
 ├── plugins/codex-integration/         # Plugin directory
 │   ├── .claude-plugin/plugin.json     # Plugin manifest
-│   └── skills/codex/SKILL.md          # Skill implementation
-├── CLAUDE.md                          # Usage instructions
+│   └── skills/codex/SKILL.md          # Skill implementation (authoritative reference)
+├── CLAUDE.md                          # Usage instructions for Claude Code
 └── README.md                          # This documentation
 ```
 
-### Skill Implementation
-See `plugins/codex-integration/skills/codex/SKILL.md` for complete technical specifications, CLI options, and operational guidance.
+### Skill Implementation & Documentation
+
+The authoritative technical documentation is in [SKILL.md](./plugins/codex-integration/skills/codex/SKILL.md), which includes:
+
+- **7-Step Workflow**: Detailed breakdown of how the plugin executes Codex tasks
+- **Architecture Integration**: How the skill wraps Codex CLI for automation
+- **Configuration Management**: Complete guide to config.toml settings and overrides
+- **Session Management**: Understanding resumable sessions and persistence
+- **Safety & Permissions**: Sandbox modes explained with security guidelines
+- **Advanced Patterns**: Multi-step workflows, parallel execution, conditional logic
+- **Debugging Guide**: Comprehensive troubleshooting for each workflow step
+- **Quick Reference**: Common patterns, command templates, and lookup tables
+
+For API-level details, consult the official Codex documentation:
+- [Codex Configuration Guide](https://github.com/openai/codex/blob/main/docs/config.md)
+- [Codex Exec Command Reference](https://github.com/openai/codex/blob/main/docs/exec.md)
 
 ## Troubleshooting
 
@@ -293,6 +313,15 @@ Request thinking tokens for troubleshooting:
 ```
 Show me the thinking tokens when running codex analysis
 ```
+
+🐛 **For comprehensive troubleshooting and error resolution**, see [SKILL.md - Debugging Guide](./plugins/codex-integration/skills/codex/SKILL.md#debugging-guide) which covers:
+- Configuration validation errors (Step 1)
+- Task intent parsing issues (Step 2)
+- Command construction problems (Step 3)
+- Execution monitoring failures (Step 4)
+- Session management errors (Step 5)
+- Output processing issues (Step 6)
+- Error recovery strategies (Step 7)
 
 ## Contributing
 

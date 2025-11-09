@@ -21,6 +21,8 @@ Enables Claude Code to invoke the Codex CLI (`codex exec` and session resumes) f
 - For code analysis, refactoring, or automated editing tasks
 - When systematic code review and improvement is needed
 
+**Technical Implementation:** This plugin follows a comprehensive 7-step workflow documented in [SKILL.md](./plugins/codex-integration/skills/codex/SKILL.md) for robust code execution and error handling.
+
 ## Installation
 
 ```bash
@@ -63,3 +65,9 @@ The plugin supports various sandbox modes:
 
 Model options: `gpt-5`, `gpt-5-codex`
 Reasoning effort: `low`, `medium`, `high`
+
+🔧 **For detailed configuration options and best practices**, see [SKILL.md - Configuration Management](./plugins/codex-integration/skills/codex/SKILL.md#configuration-management)
+
+⚠️ **For sandbox mode security considerations**, see [SKILL.md - Safety & Permissions](./plugins/codex-integration/skills/codex/SKILL.md#safety--permissions)
+
+📖 **For session management and resumption**, see [SKILL.md - Session Workflow & Persistence](./plugins/codex-integration/skills/codex/SKILL.md#session-workflow--persistence)
