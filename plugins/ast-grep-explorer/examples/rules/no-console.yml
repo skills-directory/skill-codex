@@ -1,0 +1,19 @@
+id: no-console
+message: "Avoid console calls in application code; use a logger instead."
+severity: warning
+language: typescript
+rule:
+  pattern: |
+    console.$METHOD($ARGUMENTS)
+fix: |
+  logger.$METHOD($ARGUMENTS)
+constraints:
+  all:
+    - not:
+        inside:
+          kind: comment
+note: |
+  This is a simple demonstration rule. It captures `METHOD` and `ARGUMENTS`
+  to suggest a logger-based alternative. Adapt to your logging API or
+  add a condition to exclude tests or scripts via --globs.
+
