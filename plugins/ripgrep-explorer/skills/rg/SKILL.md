@@ -205,3 +205,6 @@ rg --json -n --no-config -S -t py -t rust -- 'async|await'
 # 3) Literal string in src/ with 2 lines context
 rg --json -n --no-config -F -C 2 -g 'src/**' -- 'use client'
 ```
+
+## References
+See REFERENCES.md in this directory for authoritative docs and best practices.

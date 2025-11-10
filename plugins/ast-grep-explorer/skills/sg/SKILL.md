@@ -185,3 +185,6 @@ sg run -r plugins/ast-grep-explorer/examples/rules \
   --json=stream -n --dir . --lang typescript \
   --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'
 ```
+
+## References
+See REFERENCES.md in this directory for authoritative docs and best practices.
