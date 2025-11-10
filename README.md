@@ -347,7 +347,7 @@ Result: Adds `-t py` and returns structured results with file/line/column.
 ## Smoke Test
 
 ```bash
-bash scripts/rg_smoke.sh
+bash plugins/ripgrep-explorer/skills/rg/scripts/rg_smoke.sh
 ```
 Runs a minimal JSON search with reproducible flags and prints a small summary.
 
@@ -415,7 +415,7 @@ Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=strea
 ## Smoke Test
 
 ```bash
-bash scripts/sg_smoke.sh
+bash plugins/ast-grep-explorer/skills/sg/scripts/sg_smoke.sh
 ```
 Runs a benign structural search; “no matches” is OK and treated as success.
 
@@ -451,46 +451,46 @@ A minimal tmux orchestration plugin that uses a single shell script to create a 
 Script:
 ```bash
 # Create with 6 workers, then attach
-WORKERS=6 ./scripts/tmux_orchestrator.sh init
-./scripts/tmux_orchestrator.sh attach
+WORKERS=6 ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh init
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh attach
 
 # Broadcast to all workers
-./scripts/tmux_orchestrator.sh run-all "echo hello"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-all "echo hello"
 
 # Target a single worker
-./scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
 
 # Master only
-./scripts/tmux_orchestrator.sh run-master "codex --version"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-master "codex --version"
 
 # Status, capture, teardown
-./scripts/tmux_orchestrator.sh status
-./scripts/tmux_orchestrator.sh capture
-./scripts/tmux_orchestrator.sh kill
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh status
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh capture
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh kill
 
 # Logs and Health
-./scripts/tmux_orchestrator.sh logs-on     # uses UTC timestamped logs if scripts/tslog.awk exists
-./scripts/tmux_orchestrator.sh tasks-health
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh logs-on     # uses UTC timestamped logs if plugins/tmux-orchestrator/skills/tmux/scripts/tslog.awk exists
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-health
 
 # Barriers
-./scripts/tmux_orchestrator.sh barrier-wait phase1 &
-./scripts/tmux_orchestrator.sh barrier-signal phase1
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh barrier-wait phase1 &
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh barrier-signal phase1
 
 ## Tasks (Queue)
 Minimal task management backed by the filesystem:
 ```bash
 # Initialize queue and start worker loops
-./scripts/tmux_orchestrator.sh tasks-init
-./scripts/tmux_orchestrator.sh tasks-start
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-init
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-start
 
 # Enqueue tasks
-./scripts/tmux_orchestrator.sh tasks-enqueue -- echo "hello"
-./scripts/tmux_orchestrator.sh tasks-enqueue -d src -- rg --json -n --no-config -S TODO
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-enqueue -- echo "hello"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-enqueue -d src -- rg --json -n --no-config -S TODO
 
 # Observe and control
-./scripts/tmux_orchestrator.sh tasks-list all
-./scripts/tmux_orchestrator.sh tasks-tail <task_id>
-./scripts/tmux_orchestrator.sh tasks-stop
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-list all
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-tail <task_id>
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-stop
 ```
 ```
 

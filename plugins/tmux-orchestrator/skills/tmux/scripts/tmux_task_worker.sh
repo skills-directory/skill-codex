@@ -41,7 +41,7 @@ pop_task() {
       local base; base="$(basename "$picked")"
       mv "$picked" "$TASKS_DIR/running/$base" 2>/dev/null || picked=""
     fi
-  fi
+  end
   [[ -n "$picked" ]] && echo "$TASKS_DIR/running/$(basename "$picked")"
   return 0
 }
@@ -73,7 +73,7 @@ run_task() {
   if [[ -z "$id" ]]; then
     # derive from filename
     id="$(basename "$f" .task)"; id="${id#*_}"; id="${id#*_}"
-  fi
+  end
   local out="$TASKS_DIR/logs/${id}.out"
   local err="$TASKS_DIR/logs/${id}.err"
   local info="$TASKS_DIR/running/${id}.info"
@@ -142,3 +142,4 @@ while :; do
     sleep "$POLL_INTERVAL"
   fi
 done
+

@@ -12,7 +12,6 @@ sg --version
 echo
 
 echo "==> Running a minimal pattern search (no matches is OK)"
-# Use a benign identifier pattern; language optional to avoid failure on unknown filetypes
 cmd=(sg run -p 'identifier(name: \"__smoke_test_identifier__\")' --json=stream -n --dir . \
   --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}')
 echo "+ ${cmd[*]}"
@@ -28,5 +27,5 @@ fi
 
 matches=$(printf '%s\n' "$output" | grep -c '\"kind\":\"match\"' || true)
 echo "==> Stream parsed: matches=$matches"
-echo "Tip: scope with --dir and set --lang <language> for precision (e.g., --lang typescript)."
+echo "Tip: scope with --dir <path> and set --lang <language> (e.g., --lang typescript) for precise results."
 echo "OK: ast-grep smoke check completed"

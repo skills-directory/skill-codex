@@ -11,7 +11,7 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - tmux installed (`tmux -V`)
 
 ## Script
-- `scripts/tmux_orchestrator.sh`
+- `plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh`
 - Uses a dedicated server via `tmux -L <socket>` to avoid interfering with a user’s own tmux.
 
 ## Defaults (overridable via env)
@@ -36,12 +36,12 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - `kill`: kill the session
 - `capture [DIR]`: save the text of each pane to files under `DIR` (default `logs/tmux/<session>/snapshots`)
 - `logs-on` / `logs-off`: toggle per-pane logging via `pipe-pane` into `logs/tmux/<session>/pipes/*.log`
-  - If `scripts/tslog.awk` is present, logs are prefixed with UTC timestamps.
+  - If `plugins/tmux-orchestrator/skills/tmux/scripts/tslog.awk` is present, logs are prefixed with UTC timestamps.
 
 ## Task Queue (Minimal)
 Backed by a filesystem queue under `var/tmux/<session>/tasks`:
 - Directories: `queue/`, `running/`, `done/`, `failed/`, `logs/`
-- Worker loop: `scripts/tmux_task_worker.sh <tasks_dir> <worker_id>`
+- Worker loop: `plugins/tmux-orchestrator/skills/tmux/scripts/tmux_task_worker.sh <tasks_dir> <worker_id>`
 - Enqueue format: key=value lines (`ID=...`, `CMD=...`, `CWD=...`, repeated `ENV=KEY=VAL`)
 
 ### Task Commands
@@ -65,48 +65,48 @@ Backed by a filesystem queue under `var/tmux/<session>/tasks`:
 ## Examples
 ```bash
 # Create session with 6 workers and attach
-WORKERS=6 ./scripts/tmux_orchestrator.sh init
-./scripts/tmux_orchestrator.sh attach
+WORKERS=6 ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh init
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh attach
 
 # Broadcast command to all workers
-./scripts/tmux_orchestrator.sh run-all "rg --json -n --no-config -S 'TODO|FIXME'"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-all "rg --json -n --no-config -S 'TODO|FIXME'"
 
 # Run tests on worker 2 only
-./scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
 
 # Run something on master
-./scripts/tmux_orchestrator.sh run-master "codex --version"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-master "codex --version"
 
 # Check status and capture output
-./scripts/tmux_orchestrator.sh status
-./scripts/tmux_orchestrator.sh capture
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh status
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh capture
 
 # Tear down
-./scripts/tmux_orchestrator.sh kill
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh kill
 
 # --- Task Queue ---
-./scripts/tmux_orchestrator.sh tasks-init
-./scripts/tmux_orchestrator.sh tasks-start
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-init
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-start
 
 # Enqueue a few tasks
-./scripts/tmux_orchestrator.sh tasks-enqueue -- echo "hello from task 1"
-./scripts/tmux_orchestrator.sh tasks-enqueue -d src -- rg --json -n --no-config -S TODO
-./scripts/tmux_orchestrator.sh tasks-enqueue -e FOO=bar -- bash -lc 'echo $FOO && sleep 1'
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-enqueue -- echo "hello from task 1"
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-enqueue -d src -- rg --json -n --no-config -S TODO
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-enqueue -e FOO=bar -- bash -lc 'echo $FOO && sleep 1'
 
 # Inspect
-./scripts/tmux_orchestrator.sh tasks-list all
-./scripts/tmux_orchestrator.sh tasks-tail t169000000000  # example ID
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-list all
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-tail t169000000000  # example ID
 
 # Stop workers
-./scripts/tmux_orchestrator.sh tasks-stop
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh tasks-stop
 
 # Optional per-pane logging
-./scripts/tmux_orchestrator.sh logs-on
-./scripts/tmux_orchestrator.sh logs-off
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh logs-on
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh logs-off
 
 # Barriers
-./scripts/tmux_orchestrator.sh barrier-wait phase1 &   # in one pane
-./scripts/tmux_orchestrator.sh barrier-signal phase1   # in another pane
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh barrier-wait phase1 &   # in one pane
+./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh barrier-signal phase1   # in another pane
 ```
 
 ## Safety

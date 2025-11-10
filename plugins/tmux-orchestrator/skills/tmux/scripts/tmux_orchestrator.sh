@@ -64,11 +64,11 @@ Barriers:
   barrier-signal <name>   Signal a barrier (tmux wait-for -S)
 
 Examples:
-  WORKERS=6 ./scripts/tmux_orchestrator.sh init
-  ./scripts/tmux_orchestrator.sh run-all "echo hello && sleep 1"
-  ./scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
-  ./scripts/tmux_orchestrator.sh run-master "codex --version"
-  ./scripts/tmux_orchestrator.sh attach
+  WORKERS=6 ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh init
+  ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-all "echo hello && sleep 1"
+  ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
+  ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh run-master "codex --version"
+  ./plugins/tmux-orchestrator/skills/tmux/scripts/tmux_orchestrator.sh attach
 EOF
 }
 
@@ -279,12 +279,12 @@ cmd_tasks_start() {
     while read -r i; do allow["$i"]=1; done < <(parse_subset "$subset")
     for idx in $panes; do
       [[ -n "${allow[$idx]:-}" ]] || continue
-      tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "scripts/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
+      tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "${SCRIPT_DIR}/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
     done
     echo "Started task workers in subset: ${subset}"
   else
     for idx in $panes; do
-      tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "scripts/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
+      tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "${SCRIPT_DIR}/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
     done
     echo "Started task workers in window '${WORKERS_WINDOW}'."
   fi
