@@ -8,6 +8,11 @@
       "name": "codex-integration",
       "source": "./plugins/codex-integration",
       "description": "Codex CLI integration for Claude Code - enables automated code analysis, refactoring, and editing workflows"
+    },
+    {
+      "name": "ripgrep-explorer",
+      "source": "./plugins/ripgrep-explorer",
+      "description": "Ripgrep-powered code search for Claude Code with structured JSON results and context navigation"
     }
   ]
 }
