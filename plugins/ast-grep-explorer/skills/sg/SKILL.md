@@ -60,19 +60,19 @@ Canonical Shapes:
 ```bash
 # Pattern-based search (regex-like but AST-aware per language grammar)
 sg run -p '<pattern>' \
-  --json=stream -n \
+  --json=stream \
   --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
-  [--lang <lang>] [--hidden] [--no-ignore] [--globs '<glob>'] [--dir <path>]
+  [--lang <lang>] [--hidden] [--no-ignore] [--globs '<glob>'] [<paths...>]
 
 # Rule-based search
 sg run -r rules/ \
-  --json=stream -n \
+  --json=stream \
   --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
-  [--lang <lang>] [--hidden] [--no-ignore] [--dir <path>]
+  [--lang <lang>] [--hidden] [--no-ignore] [<paths...>]
 
 # Structural replace (explicit)
 sg run -p '<pattern>' --rewrite '<replacement>' --dry-run \
-  --json=stream -n [scoping flags...]
+  --json=stream [scoping flags...] [<paths...>]
 ```
 
 Notes:
@@ -80,6 +80,7 @@ Notes:
 - Always quote the pattern to avoid shell expansion.
 - Use `--dry-run` by default for refactors; require explicit confirmation to apply.
 - For complex patterns, encourage rule YAML with `rule:` / `fix:` blocks and tests.
+ - Scope directories by passing them as final positional arguments (defaults to the current working directory). Example: `sg run -p 'pattern' --json=stream ./src ./services/api`.
  - Language selection: prefer `--lang <lang>` (e.g., `--lang typescript`, `--lang python`) over file globs when possible.
  - Debugging: `--inspect` prints rule/pattern diagnostics; `--strictness <level>` controls match leniency.
 
@@ -130,7 +131,7 @@ Machine-Readable (internal):
       \"captures\": {\"ident\": \"user\"}
     }
   ],
-  \"command\": \"sg run -p 'console.log($X)' --json=stream -n\",
+  \"command\": \"sg run -p 'console.log($X)' --json=stream\",
   \"stats\": {\"files\": 6, \"matches\": 9}
 }
 ```
@@ -162,7 +163,7 @@ Recovery Strategies:
 - Pattern: `-p '<pattern>'` (uses language grammar; add `--lang <lang>` when ambiguous).
 - Rule directory: `-r rules/` (supports `fix:` for rewrite).
 - JSON: `--json=stream` for NDJSON-style events.
-- Scope: `--dir <path>`, `--globs '<glob>'`, `--hidden`, `--no-ignore`.
+- Scope: append directories as positional args (default `.`) and use `--globs '<glob>'`, `--hidden`, `--no-ignore` for finer control.
 - Dry run: `--dry-run` for safe preview of rewrites.
 - Inspect: `--inspect` to see how patterns/rules are interpreted.
 
@@ -171,24 +172,24 @@ Recovery Strategies:
 ```bash
 # 1) Find console logs in TS/JS
 sg run -p 'call_expression(callee: identifier(name: \"console\"))' \
-  --json=stream -n --lang javascript --globs 'src/**'
+  --json=stream --lang javascript --globs 'src/**' .
 
 # 2) Rename identifier via rewrite (preview)
 sg run -p 'identifier(name: \"foo\")' --rewrite 'bar' \
-  --dry-run --json=stream -n --lang typescript
+  --dry-run --json=stream --lang typescript .
 
 # 3) Use a rule directory with fixes (preview)
-sg run -r rules/ --json=stream -n --dir src/ --lang typescript
+sg run -r rules/ --json=stream --lang typescript src/
 
 # 4) Run the built-in example rule (no-console) from this repo
 sg run -r plugins/ast-grep-explorer/examples/rules \
-  --json=stream -n --dir . --lang typescript \
+  --json=stream --lang typescript . \
   --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'
 
 # 5) Apply fixes (dangerous): remove --dry-run to write changes
 #    Always commit or back up first. Run on a scoped directory and review diff.
 sg run -p 'identifier(name: \"foo\")' --rewrite 'bar' \
-  --json=stream -n --lang typescript  # note: no --dry-run here
+  --json=stream --lang typescript .  # note: no --dry-run here
 ```
 
 ## References

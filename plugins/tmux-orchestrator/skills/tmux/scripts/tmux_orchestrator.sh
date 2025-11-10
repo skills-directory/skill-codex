@@ -412,7 +412,10 @@ cmd_tasks_health() {
   count_failed=$(ls -1 "${TASK_ROOT}/failed"/*.task 2>/dev/null | wc -l | tr -d ' ')
   echo "Queue: ${count_queue} | Running: ${count_running} | Done: ${count_done} | Failed: ${count_failed}"
   local stale=0
-  for info in "${TASK_ROOT}/running/"*.info 2>/dev/null; do
+  shopt -s nullglob
+  local -a running_infos=("${TASK_ROOT}/running/"*.info)
+  shopt -u nullglob
+  for info in "${running_infos[@]}"; do
     [[ -f "$info" ]] || continue
     local id pid
     id="$(grep '^id=' "$info" | cut -d= -f2 || true)"

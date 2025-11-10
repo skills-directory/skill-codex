@@ -11,8 +11,7 @@
 - `sg run -r` to run rule directories (YAML with `rule:` and optional `fix:`)
 - Streaming JSON output: `--json=stream`
 - Language specification: `--lang <language>` for precise parsing
-- Globbing and scoping with `--globs` and `--dir`
+- Globbing with `--globs` and scoping via positional directory arguments
 - Safe rewrites with `--dry-run` and debugging with `--inspect`
 
 Refer to the official docs for the exact CLI options and rule schema.
-

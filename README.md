@@ -369,7 +369,7 @@ An AST-aware code search and refactoring plugin powered by ast-grep (`sg`). It m
 The skill builds `sg run` commands with safe defaults:
 
 ### Defaults
-- JSON: `--json=stream -n`
+- JSON: `--json=stream`
 - Excludes: `-g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'`
 - Read-only unless rewrite is requested; refactors use `--dry-run` unless you confirm apply
 
@@ -387,13 +387,13 @@ The skill builds `sg run` commands with safe defaults:
 ```
 Use ast-grep to find console calls in TypeScript and JavaScript
 ```
-Runs `sg run -p 'call_expression(callee: identifier(name: "console"))' --json=stream -n -t ts -t js` and returns grouped, navigable matches.
+Runs `sg run -p 'call_expression(callee: identifier(name: "console"))' --json=stream -t ts -t js .` and returns grouped, navigable matches.
 
 ### Example: Preview a rename refactor
 ```
 Rename identifier 'foo' to 'bar' in TypeScript (preview only)
 ```
-Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=stream -n -t ts` and shows proposed edits.
+Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=stream -t ts .` and shows proposed edits.
 
 ## Installation
 
@@ -426,7 +426,7 @@ This repo includes a demo rule:
 
 Preview it against the current workspace:
 ```bash
-sg run -r plugins/ast-grep-explorer/examples/rules --json=stream -n --dir . --lang typescript
+sg run -r plugins/ast-grep-explorer/examples/rules --json=stream --lang typescript .
 ```
 
 ---
