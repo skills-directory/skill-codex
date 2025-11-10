@@ -56,6 +56,8 @@ Tasks:
   tasks-retry <id>        Move failed task back to queue
   tasks-paths             Print task directories for this session
   tasks-health            Show queue counts and stale running tasks
+  tasks-clean [--hours N | --keep N]
+                          Prune done/failed tasks and logs by age or keep last N per state
 
 Barriers:
   barrier-wait <name>     Wait for a signal (tmux wait-for)
@@ -381,6 +383,47 @@ cmd_tasks_health() {
   echo "Stale running tasks: ${stale}"
 }
 
+cmd_tasks_clean() {
+  ensure_tasks_dirs
+  local hours=\"\" keep=\"\"
+  while [[ $# -gt 0 ]]; do
+    case \"$1\" in
+      --hours) hours=\"$2\"; shift 2;;
+      --keep) keep=\"$2\"; shift 2;;
+      *) break;;
+    esac
+  done
+  if [[ -n \"$hours\" && -n \"$keep\" ]]; then
+    die \"Use either --hours or --keep, not both\"
+  fi
+  if [[ -z \"$hours\" && -z \"$keep\" ]]; then
+    die \"Provide --hours N or --keep N\"
+  fi
+  if [[ -n \"$hours\" ]]; then
+    # Delete .task, .info, .out, .err older than N hours in done/failed/logs
+    find \"${TASK_ROOT}/done\" -type f -mmin +$((hours*60)) -print -delete 2>/dev/null || true
+    find \"${TASK_ROOT}/failed\" -type f -mmin +$((hours*60)) -print -delete 2>/dev/null || true
+    find \"${TASK_ROOT}/logs\" -type f -mmin +$((hours*60)) -print -delete 2>/dev/null || true
+    echo \"Pruned items older than ${hours}h in done/failed/logs\"
+  else
+    # Keep last N by mtime per directory
+    local d
+    for d in done failed logs; do
+      # shellcheck disable=SC2012
+      local files; files=$(ls -1t \"${TASK_ROOT}/${d}\" 2>/dev/null || true)
+      local count=0
+      IFS=$'\\n' read -r -d '' -a arr < <(printf '%s\\0' ${files}) || true
+      for f in ${files}; do
+        count=$((count+1))
+        if [[ $count -gt $keep ]]; then
+          rm -f \"${TASK_ROOT}/${d}/$f\" 2>/dev/null || true
+        fi
+      done
+      echo \"Kept last ${keep} in ${TASK_ROOT}/${d}\"
+    done
+  fi
+}
+
 cmd_barrier_wait() {
   [[ $# -ge 1 ]] || die "barrier-wait <name>"
   tmuxc wait-for "$1"
@@ -414,6 +457,7 @@ main() {
     tasks-retry) cmd_tasks_retry "$@";;
     tasks-paths) cmd_tasks_paths;;
     tasks-health) cmd_tasks_health;;
+    tasks-clean) cmd_tasks_clean \"$@\";;
     barrier-wait) cmd_barrier_wait "$@";;
     barrier-signal) cmd_barrier_signal "$@";;
     -h|--help|"") usage; exit 0;;
