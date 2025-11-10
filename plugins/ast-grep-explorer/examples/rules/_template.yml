@@ -1,0 +1,19 @@
+# Example ast-grep rule template
+# Docs: https://ast-grep.github.io/guide/scan/
+id: example-rule-id
+message: "Describe what this rule detects or fixes."
+severity: warning
+language: typescript # change to your language
+rule:
+  # Replace with a structural pattern or an AST pattern expression
+  pattern: |
+    console.log($EXPR)
+# Optional fix section for structural rewrite
+# fix: |
+#   logger.info($EXPR)
+# constraints:
+#   all:
+#     - not:
+#         inside:
+#           kind: comment
+

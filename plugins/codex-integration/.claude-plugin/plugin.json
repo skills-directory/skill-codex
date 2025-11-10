@@ -1,0 +1,8 @@
+{
+  "name": "codex-integration",
+  "description": "Enable Claude Code to invoke Codex CLI for automated code analysis, refactoring, and editing workflows",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skills Directory"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "ast-grep-explorer",
+  "description": "AST-based code search and refactor via ast-grep (sg) with structured output and safe defaults",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skills Directory"
+  }
+}
