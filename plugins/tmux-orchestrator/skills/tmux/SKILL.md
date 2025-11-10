@@ -101,3 +101,6 @@ WORKERS=6 ./scripts/tmux_orchestrator.sh init
 - Shell-only; no file modifications except optional capture to `logs/`.
 - Isolated tmux server via `-L <socket>`.
 - Idempotent `init` (won’t recreate an existing session).
+
+## References
+- tmux(1) manpage: options `base-index`, `pane-base-index`, `history-limit` (session), `remain-on-exit`, `allow-rename`, `synchronize-panes` (window); commands `new-session`, `new-window`, `split-window`, `select-layout`, `select-pane -T`, `pipe-pane`, `capture-pane`. 
