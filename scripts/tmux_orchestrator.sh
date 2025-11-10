@@ -178,7 +178,7 @@ cmd_logs_on() {
   mkdir -p "${LOG_DIR}/pipes"
   while IFS=$'\t' read -r idx pane_id; do
     local log="${LOG_DIR}/pipes/${SESSION}_${WORKERS_WINDOW}_${idx}_${pane_id//#/}.log"
-    if [[ -f \"${SCRIPT_DIR}/tslog.awk\" ]]; then
+    if [[ -f "${SCRIPT_DIR}/tslog.awk" ]]; then
       tmuxc pipe-pane -t "${pane_id}" -o "awk -f '${SCRIPT_DIR}/tslog.awk' >> '${log}'"
     else
       tmuxc pipe-pane -t "${pane_id}" -o "cat >> '${log}'"
