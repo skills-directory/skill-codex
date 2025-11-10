@@ -360,10 +360,20 @@ cmd_tasks_cancel() {
       local info="${TASK_ROOT}/running/${id}.info"
       if [[ -f "$info" ]]; then
         local pid; pid="$(grep '^pid=' "$info" | cut -d= -f2 || true)"
+        # Handle race: wait briefly for pid to appear
+        if [[ -z "$pid" ]]; then
+          for _ in 1 2 3; do
+            sleep 0.3
+            pid="$(grep '^pid=' "$info" | cut -d= -f2 || true)"
+            [[ -n "$pid" ]] && break
+          done
+        fi
         if [[ -n "$pid" ]]; then
           kill "$pid" 2>/dev/null || true
           sleep 1
           kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
+        else
+          echo "cancel-pending=true" >> "$info"
         fi
       fi
       mv "$f" "${TASK_ROOT}/failed/$(basename "$f")"
