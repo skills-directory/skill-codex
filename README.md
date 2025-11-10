@@ -468,6 +468,14 @@ WORKERS=6 ./scripts/tmux_orchestrator.sh init
 ./scripts/tmux_orchestrator.sh capture
 ./scripts/tmux_orchestrator.sh kill
 
+# Logs and Health
+./scripts/tmux_orchestrator.sh logs-on     # uses UTC timestamped logs if scripts/tslog.awk exists
+./scripts/tmux_orchestrator.sh tasks-health
+
+# Barriers
+./scripts/tmux_orchestrator.sh barrier-wait phase1 &
+./scripts/tmux_orchestrator.sh barrier-signal phase1
+
 ## Tasks (Queue)
 Minimal task management backed by the filesystem:
 ```bash
