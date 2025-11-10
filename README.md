@@ -347,7 +347,7 @@ Result: Adds `-t py` and returns structured results with file/line/column.
 ## Smoke Test
 
 ```bash
-bash plugins/ripgrep-explorer/skills/rg/scripts/rg_smoke.sh
+bash ./plugins/ripgrep-explorer/skills/rg/scripts/rg_smoke.sh
 ```
 Runs a minimal JSON search with reproducible flags and prints a small summary.
 
@@ -415,7 +415,7 @@ Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=strea
 ## Smoke Test
 
 ```bash
-bash plugins/ast-grep-explorer/skills/sg/scripts/sg_smoke.sh
+bash ./plugins/ast-grep-explorer/skills/sg/scripts/sg_smoke.sh
 ```
 Runs a benign structural search; “no matches” is OK and treated as success.
 
