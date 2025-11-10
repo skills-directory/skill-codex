@@ -18,6 +18,7 @@ This skill uses ast-grep (CLI: `sg`) for structural, AST-aware code search and s
 Goals:
 - Verify `sg` is installed and detect version.
 - Confirm basic commands and JSON output availability.
+- Ensure CLI flags reflect current `sg run` syntax (`--globs`, `--lang`, `--no-ignore` family).
 
 Commands:
 ```bash
@@ -48,7 +49,7 @@ Intent Dimensions:
 Safe Defaults:
 - Read-only search unless refactor requested.
 - Respect ignores and exclude heavy dirs by default:
-  - `-g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'`
+  - `--globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'`
 - Stream results as JSON events with file, range, and snippet.
 
 ---
@@ -60,13 +61,13 @@ Canonical Shapes:
 # Pattern-based search (regex-like but AST-aware per language grammar)
 sg run -p '<pattern>' \
   --json=stream -n \
-  -g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
-  [--lang <lang>] [--hidden] [--no-ignore] [-g '<glob>'] [--dir <path>]
+  --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
+  [--lang <lang>] [--hidden] [--no-ignore] [--globs '<glob>'] [--dir <path>]
 
 # Rule-based search
 sg run -r rules/ \
   --json=stream -n \
-  -g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
+  --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
   [--lang <lang>] [--hidden] [--no-ignore] [--dir <path>]
 
 # Structural replace (explicit)
@@ -79,6 +80,8 @@ Notes:
 - Always quote the pattern to avoid shell expansion.
 - Use `--dry-run` by default for refactors; require explicit confirmation to apply.
 - For complex patterns, encourage rule YAML with `rule:` / `fix:` blocks and tests.
+ - Language selection: prefer `--lang <lang>` (e.g., `--lang typescript`, `--lang python`) over file globs when possible.
+ - Debugging: `--inspect` prints rule/pattern diagnostics; `--strictness <level>` controls match leniency.
 
 ---
 
@@ -159,20 +162,21 @@ Recovery Strategies:
 - Pattern: `-p '<pattern>'` (uses language grammar; add `--lang <lang>` when ambiguous).
 - Rule directory: `-r rules/` (supports `fix:` for rewrite).
 - JSON: `--json=stream` for NDJSON-style events.
-- Scope: `--dir <path>`, `-g '<glob>'`, `--hidden`, `--no-ignore`.
+- Scope: `--dir <path>`, `--globs '<glob>'`, `--hidden`, `--no-ignore`.
 - Dry run: `--dry-run` for safe preview of rewrites.
+- Inspect: `--inspect` to see how patterns/rules are interpreted.
 
 ## Examples
 
 ```bash
 # 1) Find console logs in TS/JS
 sg run -p 'call_expression(callee: identifier(name: \"console\"))' \
-  --json=stream -n -t js -t ts
+  --json=stream -n --lang javascript --globs 'src/**'
 
 # 2) Rename identifier via rewrite (preview)
 sg run -p 'identifier(name: \"foo\")' --rewrite 'bar' \
-  --dry-run --json=stream -n -t ts
+  --dry-run --json=stream -n --lang typescript
 
 # 3) Use a rule directory with fixes
-sg run -r rules/ --json=stream -n --dir src/ -t ts
+sg run -r rules/ --json=stream -n --dir src/ --lang typescript
 ```
