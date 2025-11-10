@@ -179,4 +179,9 @@ sg run -p 'identifier(name: \"foo\")' --rewrite 'bar' \
 
 # 3) Use a rule directory with fixes
 sg run -r rules/ --json=stream -n --dir src/ --lang typescript
+
+# 4) Run the built-in example rule (no-console) from this repo
+sg run -r plugins/ast-grep-explorer/examples/rules \
+  --json=stream -n --dir . --lang typescript \
+  --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'
 ```
