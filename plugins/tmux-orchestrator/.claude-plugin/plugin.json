@@ -1,0 +1,8 @@
+{
+  "name": "tmux-orchestrator",
+  "description": "Minimal tmux orchestration via shell: master + workers session with run-all/one, attach, status, kill",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skills Directory"
+  }
+}
