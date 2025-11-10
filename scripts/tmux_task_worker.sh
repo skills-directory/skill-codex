@@ -94,14 +94,26 @@ run_task() {
     export "$e"
   done
 
-  # Execute
-  local rc=0
+  # Execute with process substitution to both log and display in pane; record child PID
+  local rc=0 child=0
   if [[ -n "$TASK_CWD" ]]; then
-    ( cd "$TASK_CWD" && stdbuf -oL -eL bash -lc "$TASK_CMD" | tee -a "$out" 2> >(tee -a "$err" >&2) )
-    rc=${PIPESTATUS[0]}
+    (
+      cd "$TASK_CWD" || exit 1
+      bash -lc "exec stdbuf -oL -eL ${TASK_CMD}" \
+        > >(tee -a "$out") 2> >(tee -a "$err" >&2) &
+      child=$!
+      echo "pid=$child" >> "$info"
+      wait "$child"
+      exit $?
+    )
+    rc=$?
   else
-    stdbuf -oL -eL bash -lc "$TASK_CMD" | tee -a "$out" 2> >(tee -a "$err" >&2)
-    rc=${PIPESTATUS[0]}
+    bash -lc "exec stdbuf -oL -eL ${TASK_CMD}" \
+      > >(tee -a "$out") 2> >(tee -a "$err" >&2) &
+    child=$!
+    echo "pid=$child" >> "$info"
+    wait "$child"
+    rc=$?
   fi
 
   echo "exit_code=$rc" >> "$info"
@@ -130,4 +142,3 @@ while :; do
     sleep "$POLL_INTERVAL"
   fi
 done
-

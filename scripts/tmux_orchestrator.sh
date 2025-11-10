@@ -10,6 +10,12 @@ WORKERS_WINDOW="${WORKERS_WINDOW:-workers}"
 WORKERS="${WORKERS:-4}"                 # number of worker panes
 LOG_DIR="${LOG_DIR:-logs/tmux/${SESSION}}"
 TASK_ROOT="${TASK_ROOT:-var/tmux/${SESSION}/tasks}"
+# Recommended tmux options (overridable)
+TMUX_BASE_INDEX="${TMUX_BASE_INDEX:-1}"
+TMUX_PANE_BASE_INDEX="${TMUX_PANE_BASE_INDEX:-1}"
+TMUX_HISTORY_LIMIT="${TMUX_HISTORY_LIMIT:-50000}"
+TMUX_REMAIN_ON_EXIT="${TMUX_REMAIN_ON_EXIT:-on}"
+TMUX_ALLOW_RENAME="${TMUX_ALLOW_RENAME:-off}"
 
 tmuxc() { tmux -L "${SOCKET}" "$@"; }
 
@@ -72,6 +78,12 @@ cmd_init() {
   fi
   # Create session with master window
   tmuxc new-session -d -s "${SESSION}" -n "${MASTER_WINDOW}"
+  # Apply recommended server/global options on isolated server
+  tmuxc set-option -g base-index "${TMUX_BASE_INDEX}"
+  tmuxc set-option -g pane-base-index "${TMUX_PANE_BASE_INDEX}"
+  tmuxc set-option -g history-limit "${TMUX_HISTORY_LIMIT}"
+  tmuxc set-option -g remain-on-exit "${TMUX_REMAIN_ON_EXIT}"
+  tmuxc set-option -g allow-rename "${TMUX_ALLOW_RENAME}"
   # Create workers window
   tmuxc new-window -t "${SESSION}:" -n "${WORKERS_WINDOW}"
   # Ensure at least 1 pane exists; split to reach n panes
@@ -81,6 +93,11 @@ cmd_init() {
     tmuxc select-layout -t "${SESSION}:${WORKERS_WINDOW}" tiled >/dev/null
     i=$((i+1))
   done
+  # Title each worker pane for clarity
+  while IFS=$'\t' read -r idx pane_id; do
+    tmuxc select-pane -t "${pane_id}" -T "worker-${idx}"
+  done < <(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}\t#{pane_id}')
+
   tmuxc select-window -t "${SESSION}:${MASTER_WINDOW}"
   echo "Created session '${SESSION}' with ${n} worker panes on socket '${SOCKET}'."
 }
@@ -145,9 +162,26 @@ cmd_capture() {
   while IFS=$'\t' read -r name pane_id _; do
     # sanitize name to filename
     local fname="${name//[:.]/_}_${pane_id//#/}.txt"
-    tmuxc capture-pane -t "${pane_id}" -p -S - > "${outdir}/${fname}"
-    echo "Captured ${name} (${pane_id}) -> ${outdir}/${fname}"
+  tmuxc capture-pane -t "${pane_id}" -p -S - > "${outdir}/${fname}"
+  echo "Captured ${name} (${pane_id}) -> ${outdir}/${fname}"
   done < <(tmuxc list-panes -t "${SESSION}" -F '#{session_name}:#{window_name}.#{pane_index}\t#{pane_id}\t#{pane_active}')
+}
+
+# Toggle per-pane logging using pipe-pane
+cmd_logs_on() {
+  mkdir -p "${LOG_DIR}/pipes"
+  while IFS=$'\t' read -r idx pane_id; do
+    local log="${LOG_DIR}/pipes/${SESSION}_${WORKERS_WINDOW}_${idx}_${pane_id//#/}.log"
+    tmuxc pipe-pane -t "${pane_id}" -o "cat >> '${log}'"
+    echo "Logging ON for pane ${idx} (${pane_id}) -> ${log}"
+  done < <(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}\t#{pane_id}')
+}
+
+cmd_logs_off() {
+  while IFS=$'\t' read -r idx pane_id; do
+    tmuxc pipe-pane -t "${pane_id}"
+    echo "Logging OFF for pane ${idx} (${pane_id})"
+  done < <(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}\t#{pane_id}')
 }
 
 # --- Tasks management ---
@@ -282,6 +316,8 @@ cmd_tasks_cancel() {
         local pid; pid="$(grep '^pid=' "$info" | cut -d= -f2 || true)"
         if [[ -n "$pid" ]]; then
           kill "$pid" 2>/dev/null || true
+          sleep 1
+          kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
         fi
       fi
       mv "$f" "${TASK_ROOT}/failed/$(basename "$f")"
@@ -322,6 +358,8 @@ main() {
     status)      cmd_status;;
     kill)        cmd_kill;;
     capture)     cmd_capture "${1:-}";;
+    logs-on)     cmd_logs_on;;
+    logs-off)    cmd_logs_off;;
     tasks-init)  cmd_tasks_init;;
     tasks-enqueue) cmd_tasks_enqueue "$@";;
     tasks-start) cmd_tasks_start;;
