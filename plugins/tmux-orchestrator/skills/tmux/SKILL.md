@@ -31,6 +31,24 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - `kill`: kill the session
 - `capture [DIR]`: save the text of each pane to files under `DIR` (default `logs/tmux/<session>/snapshots`)
 
+## Task Queue (Minimal)
+Backed by a filesystem queue under `var/tmux/<session>/tasks`:
+- Directories: `queue/`, `running/`, `done/`, `failed/`, `logs/`
+- Worker loop: `scripts/tmux_task_worker.sh <tasks_dir> <worker_id>`
+- Enqueue format: key=value lines (`ID=...`, `CMD=...`, `CWD=...`, repeated `ENV=KEY=VAL`)
+
+### Task Commands
+- `tasks-init`: initialize task directories
+- `tasks-enqueue [opts] -- CMD...`: enqueue a command
+  - Options: `-d/--cwd <dir>`, `-i/--id <id>`, `-e/--env KEY=VAL` (repeat)
+- `tasks-start`: start worker loops in all worker panes
+- `tasks-stop`: send `C-c` to workers to stop loops
+- `tasks-list [queue|running|done|failed|all]`: list tasks
+- `tasks-tail <id> [--err]`: show last 100 lines from a task’s log
+- `tasks-cancel <id>`: cancel a queued or running task
+- `tasks-retry <id>`: move a failed task back to `queue/`
+- `tasks-paths`: print directories for the current session
+
 ## Examples
 ```bash
 # Create session with 6 workers and attach
@@ -52,10 +70,25 @@ WORKERS=6 ./scripts/tmux_orchestrator.sh init
 
 # Tear down
 ./scripts/tmux_orchestrator.sh kill
+
+# --- Task Queue ---
+./scripts/tmux_orchestrator.sh tasks-init
+./scripts/tmux_orchestrator.sh tasks-start
+
+# Enqueue a few tasks
+./scripts/tmux_orchestrator.sh tasks-enqueue -- echo "hello from task 1"
+./scripts/tmux_orchestrator.sh tasks-enqueue -d src -- rg --json -n --no-config -S TODO
+./scripts/tmux_orchestrator.sh tasks-enqueue -e FOO=bar -- bash -lc 'echo $FOO && sleep 1'
+
+# Inspect
+./scripts/tmux_orchestrator.sh tasks-list all
+./scripts/tmux_orchestrator.sh tasks-tail t169000000000  # example ID
+
+# Stop workers
+./scripts/tmux_orchestrator.sh tasks-stop
 ```
 
 ## Safety
 - Shell-only; no file modifications except optional capture to `logs/`.
 - Isolated tmux server via `-L <socket>`.
 - Idempotent `init` (won’t recreate an existing session).
-
