@@ -9,6 +9,7 @@ MASTER_WINDOW="${MASTER_WINDOW:-master}"
 WORKERS_WINDOW="${WORKERS_WINDOW:-workers}"
 WORKERS="${WORKERS:-4}"                 # number of worker panes
 LOG_DIR="${LOG_DIR:-logs/tmux/${SESSION}}"
+TASK_ROOT="${TASK_ROOT:-var/tmux/${SESSION}/tasks}"
 
 tmuxc() { tmux -L "${SOCKET}" "$@"; }
 
@@ -35,6 +36,18 @@ Subcommands:
   status          Show panes for the session
   kill            Kill the session
   capture [DIR]   Save text of each pane to DIR (default: \$LOG_DIR/snapshots)
+
+Tasks:
+  tasks-init              Prepare filesystem queue under \$TASK_ROOT
+  tasks-enqueue [opts] -- CMD...
+      Options: -d <cwd>  -i <id>  -e KEY=VAL (repeatable)
+  tasks-start             Start worker loops in all worker panes
+  tasks-stop              Stop worker loops (sends C-c to workers window)
+  tasks-list [state]      List tasks (state: queue|running|done|failed|all)
+  tasks-tail <id> [--err] Show last 100 lines of task output (or stderr)
+  tasks-cancel <id>       Cancel a queued or running task
+  tasks-retry <id>        Move failed task back to queue
+  tasks-paths             Print task directories for this session
 
 Examples:
   WORKERS=6 ./scripts/tmux_orchestrator.sh init
@@ -137,6 +150,167 @@ cmd_capture() {
   done < <(tmuxc list-panes -t "${SESSION}" -F '#{session_name}:#{window_name}.#{pane_index}\t#{pane_id}\t#{pane_active}')
 }
 
+# --- Tasks management ---
+
+ensure_tasks_dirs() {
+  mkdir -p "${TASK_ROOT}"/{queue,running,done,failed,logs,tmp} || die "cannot create ${TASK_ROOT}"
+}
+
+cmd_tasks_init() {
+  ensure_tasks_dirs
+  echo "Initialized tasks at ${TASK_ROOT}"
+}
+
+gen_task_id() {
+  local ts rand
+  ts="$(date +%s)"
+  rand="$(printf '%06d' "$RANDOM")"
+  echo "t${ts}${rand}"
+}
+
+cmd_tasks_enqueue() {
+  ensure_tasks_dirs
+  local cwd="" id="" envs=()
+  # parse options until --
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -d|--cwd) cwd="$2"; shift 2;;
+      -i|--id) id="$2"; shift 2;;
+      -e|--env) envs+=("$2"); shift 2;;
+      --) shift; break;;
+      *) break;;
+    esac
+  done
+  [[ $# -gt 0 ]] || die "tasks-enqueue requires -- CMD..."
+  local cmd="$*"
+  [[ -n "$id" ]] || id="$(gen_task_id)"
+  local ts="$(date +%s)"
+  local base="${ts}_$RANDOM_${id}.task"
+  local f="${TASK_ROOT}/queue/${base}"
+  {
+    echo "ID=${id}"
+    echo "CMD=${cmd}"
+    [[ -n "$cwd" ]] && echo "CWD=${cwd}"
+    local e
+    for e in "${envs[@]:-}"; do
+      echo "ENV=${e}"
+    done
+  } > "$f"
+  echo "Enqueued task ${id}"
+}
+
+cmd_tasks_start() {
+  ensure_tasks_dirs
+  # Start worker loop in each worker pane
+  local panes; panes=$(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}' 2>/dev/null) || die "workers window not found"
+  local idx
+  for idx in $panes; do
+    tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "scripts/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
+  done
+  echo "Started task workers in window '${WORKERS_WINDOW}'."
+}
+
+cmd_tasks_stop() {
+  # best-effort: send C-c to each worker pane
+  local panes; panes=$(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}' 2>/dev/null) || die "workers window not found"
+  local idx
+  for idx in $panes; do
+    tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" C-c
+  done
+  echo "Sent C-c to workers."
+}
+
+task_glob_for_id() {
+  local id="$1" state="$2"
+  case "$state" in
+    queue|running|done|failed) echo "${TASK_ROOT}/${state}/*_${id}.task" ;;
+    *) echo "${TASK_ROOT}"/{queue,running,done,failed}"/*_${id}.task" ;;
+  esac
+}
+
+find_task_file_by_id() {
+  local id="$1"
+  local f; f=$(echo $(task_glob_for_id "$id" all) 2>/dev/null | awk '{print $1}')
+  [[ -n "${f:-}" && -e "$f" ]] && echo "$f"
+}
+
+cmd_tasks_list() {
+  ensure_tasks_dirs
+  local state="${1:-all}"
+  case "$state" in
+    all)
+      for d in queue running done failed; do
+        echo "== $d =="
+        ls -1 "${TASK_ROOT}/${d}"/*.task 2>/dev/null | sed 's#.*/##' || true
+      done
+      ;;
+    queue|running|done|failed)
+      ls -1 "${TASK_ROOT}/${state}"/*.task 2>/dev/null | sed 's#.*/##' || true
+      ;;
+    *)
+      die "unknown state: $state"
+      ;;
+  esac
+}
+
+cmd_tasks_tail() {
+  ensure_tasks_dirs
+  [[ $# -ge 1 ]] || die "tasks-tail <id> [--err]"
+  local id="$1"; shift || true
+  local stream="out"
+  [[ "${1:-}" == "--err" ]] && stream="err"
+  local log="${TASK_ROOT}/logs/${id}.${stream}"
+  [[ -f "$log" ]] || die "log not found: $log"
+  tail -n 100 "$log"
+}
+
+cmd_tasks_cancel() {
+  ensure_tasks_dirs
+  [[ $# -ge 1 ]] || die "tasks-cancel <id>"
+  local id="$1"
+  local f; f="$(find_task_file_by_id "$id")" || true
+  [[ -n "${f:-}" ]] || die "task not found: $id"
+  case "$f" in
+    *"/queue/"*)
+      mv "$f" "${TASK_ROOT}/failed/$(basename "$f")"
+      echo "Canceled queued task $id"
+      ;;
+    *"/running/"*)
+      # Attempt to kill by reading info
+      local info="${TASK_ROOT}/running/${id}.info"
+      if [[ -f "$info" ]]; then
+        local pid; pid="$(grep '^pid=' "$info" | cut -d= -f2 || true)"
+        if [[ -n "$pid" ]]; then
+          kill "$pid" 2>/dev/null || true
+        fi
+      fi
+      mv "$f" "${TASK_ROOT}/failed/$(basename "$f")"
+      echo "Marked running task $id as failed (canceled)"
+      ;;
+    *)
+      echo "Task $id is not cancelable (state: ${f})"
+      ;;
+  esac
+}
+
+cmd_tasks_retry() {
+  ensure_tasks_dirs
+  [[ $# -ge 1 ]] || die "tasks-retry <id>"
+  local id="$1"
+  local f; f="$(echo "${TASK_ROOT}/failed/"*"_${id}.task" | awk '{print $1}')" || true
+  [[ -n "${f:-}" && -f "$f" ]] || die "failed task not found: $id"
+  mv "$f" "${TASK_ROOT}/queue/$(basename "$f")"
+  echo "Requeued failed task $id"
+}
+
+cmd_tasks_paths() {
+  ensure_tasks_dirs
+  echo "TASK_ROOT=${TASK_ROOT}"
+  for d in queue running done failed logs; do
+    echo " - ${d}: ${TASK_ROOT}/${d}"
+  done
+}
+
 main() {
   local sub="${1:-}"; shift || true
   case "${sub}" in
@@ -148,10 +322,18 @@ main() {
     status)      cmd_status;;
     kill)        cmd_kill;;
     capture)     cmd_capture "${1:-}";;
+    tasks-init)  cmd_tasks_init;;
+    tasks-enqueue) cmd_tasks_enqueue "$@";;
+    tasks-start) cmd_tasks_start;;
+    tasks-stop)  cmd_tasks_stop;;
+    tasks-list)  cmd_tasks_list "$@";;
+    tasks-tail)  cmd_tasks_tail "$@";;
+    tasks-cancel) cmd_tasks_cancel "$@";;
+    tasks-retry) cmd_tasks_retry "$@";;
+    tasks-paths) cmd_tasks_paths;;
     -h|--help|"") usage; exit 0;;
     *) usage; echo; die "Unknown subcommand: ${sub}";;
   esac
 }
 
 main "$@"
-
