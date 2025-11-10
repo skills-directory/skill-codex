@@ -16,6 +16,7 @@ TMUX_PANE_BASE_INDEX="${TMUX_PANE_BASE_INDEX:-1}"
 TMUX_HISTORY_LIMIT="${TMUX_HISTORY_LIMIT:-50000}"
 TMUX_REMAIN_ON_EXIT="${TMUX_REMAIN_ON_EXIT:-on}"
 TMUX_ALLOW_RENAME="${TMUX_ALLOW_RENAME:-off}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 tmuxc() { tmux -L "${SOCKET}" "$@"; }
 
@@ -54,6 +55,11 @@ Tasks:
   tasks-cancel <id>       Cancel a queued or running task
   tasks-retry <id>        Move failed task back to queue
   tasks-paths             Print task directories for this session
+  tasks-health            Show queue counts and stale running tasks
+
+Barriers:
+  barrier-wait <name>     Wait for a signal (tmux wait-for)
+  barrier-signal <name>   Signal a barrier (tmux wait-for -S)
 
 Examples:
   WORKERS=6 ./scripts/tmux_orchestrator.sh init
@@ -172,7 +178,11 @@ cmd_logs_on() {
   mkdir -p "${LOG_DIR}/pipes"
   while IFS=$'\t' read -r idx pane_id; do
     local log="${LOG_DIR}/pipes/${SESSION}_${WORKERS_WINDOW}_${idx}_${pane_id//#/}.log"
-    tmuxc pipe-pane -t "${pane_id}" -o "cat >> '${log}'"
+    if [[ -f \"${SCRIPT_DIR}/tslog.awk\" ]]; then
+      tmuxc pipe-pane -t "${pane_id}" -o "awk -f '${SCRIPT_DIR}/tslog.awk' >> '${log}'"
+    else
+      tmuxc pipe-pane -t "${pane_id}" -o "cat >> '${log}'"
+    fi
     echo "Logging ON for pane ${idx} (${pane_id}) -> ${log}"
   done < <(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}\t#{pane_id}')
 }
@@ -347,6 +357,40 @@ cmd_tasks_paths() {
   done
 }
 
+cmd_tasks_health() {
+  ensure_tasks_dirs
+  local count_queue count_running count_done count_failed
+  count_queue=$(ls -1 "${TASK_ROOT}/queue"/*.task 2>/dev/null | wc -l | tr -d ' ')
+  count_running=$(ls -1 "${TASK_ROOT}/running"/*.task 2>/dev/null | wc -l | tr -d ' ')
+  count_done=$(ls -1 "${TASK_ROOT}/done"/*.task 2>/dev/null | wc -l | tr -d ' ')
+  count_failed=$(ls -1 "${TASK_ROOT}/failed"/*.task 2>/dev/null | wc -l | tr -d ' ')
+  echo "Queue: ${count_queue} | Running: ${count_running} | Done: ${count_done} | Failed: ${count_failed}"
+  local stale=0
+  for info in "${TASK_ROOT}/running/"*.info 2>/dev/null; do
+    [[ -f "$info" ]] || continue
+    local id pid
+    id="$(grep '^id=' "$info" | cut -d= -f2 || true)"
+    pid="$(grep '^pid=' "$info" | cut -d= -f2 || true)"
+    if [[ -n "$pid" ]]; then
+      if ! kill -0 "$pid" 2>/dev/null; then
+        echo "STALE: running task id=${id} pid=${pid} (no such process)"
+        stale=$((stale+1))
+      fi
+    fi
+  done
+  echo "Stale running tasks: ${stale}"
+}
+
+cmd_barrier_wait() {
+  [[ $# -ge 1 ]] || die "barrier-wait <name>"
+  tmuxc wait-for "$1"
+}
+
+cmd_barrier_signal() {
+  [[ $# -ge 1 ]] || die "barrier-signal <name>"
+  tmuxc wait-for -S "$1"
+}
+
 main() {
   local sub="${1:-}"; shift || true
   case "${sub}" in
@@ -369,6 +413,9 @@ main() {
     tasks-cancel) cmd_tasks_cancel "$@";;
     tasks-retry) cmd_tasks_retry "$@";;
     tasks-paths) cmd_tasks_paths;;
+    tasks-health) cmd_tasks_health;;
+    barrier-wait) cmd_barrier_wait "$@";;
+    barrier-signal) cmd_barrier_signal "$@";;
     -h|--help|"") usage; exit 0;;
     *) usage; echo; die "Unknown subcommand: ${sub}";;
   esac
