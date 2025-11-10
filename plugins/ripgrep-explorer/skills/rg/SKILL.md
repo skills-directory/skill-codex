@@ -19,12 +19,15 @@ Goals:
 - Ensure `rg` binary is available and detect version.
 - Confirm JSON output support.
 - Establish safe default search roots and ignore patterns.
+- Ensure reproducibility by ignoring user config unless requested.
 
 Commands:
 ```bash
 command -v rg >/dev/null || { echo "ERROR: ripgrep not installed"; exit 1; }
 rg --version
 rg --help | head -n 1
+# Check PCRE2 availability only if user requests -P
+rg -P --pcre2-version >/dev/null 2>&1 || echo "Note: PCRE2 (-P) not available; skipping"
 ```
 
 Common Install Hints:
@@ -44,12 +47,14 @@ Intent Dimensions:
 - Case policy: smart case (`-S`) default; or force `-i`/`-s`.
 - Scope: file globs (`-g`), language types (`-t`), include hidden (`--hidden`), bypass ignores (`--no-ignore`).
 - Output form: JSON (`--json`) with line/column; optional context (`-n -C <N>`).
+ - Advanced regex: PCRE2 (`-P`) on demand; slower but more expressive.
 
 Safe Defaults:
 - Read‑only search; never modifies files.
 - Respect ignores; exclude heavy dirs by default:
   - `-g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'`
-- Smart case matching (`-S`) and JSON output (`--json -n --color never`).
+- Smart case matching (`-S`) and JSON output.
+- Reproducibility: add `--no-config` so results don’t vary by `RIPGREP_CONFIG_PATH`.
 
 Example Default Selection:
 ```text
@@ -65,10 +70,10 @@ Example Default Selection:
 
 Canonical Shape:
 ```bash
-rg --json -n --color never -S \
+rg --json -n --color never --no-config -S \
   -g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}' \
   [--hidden] [--no-ignore] [-F] [--iglob '<glob>'] [-g '<glob>'] \
-  [-t js -t ts -t py ...] [-C 2] [--max-columns 300] -- '<pattern>' [<paths...>]
+  [-t js -t ts -t py ...] [-C 2] [--max-columns 300] [-P] -- '<pattern>' [<paths...>]
 ```
 
 Notes:
@@ -76,17 +81,23 @@ Notes:
 - Prefer `-g`/`--iglob` over shell globs for portability.
 - Add `--max-columns 300` to avoid truncation in long lines.
 - For multiline context, keep JSON but rely on subsequent targeted reads for full blocks.
+- JSON constraints: `--json` cannot be combined with `--files`, `--files-with-matches`,
+  `--files-without-match`, `--count`, or `--count-matches`.
+- Type shortcuts: define custom groups with `--type-add web:*.{js,ts,jsx,tsx}`.
 
 Examples:
 ```bash
 # TODOs across repo, default excludes
-rg --json -n -S -g '!{.git,node_modules,.venv,dist,build}' -- 'TODO|FIXME'
+rg --json -n --no-config -S -g '!{.git,node_modules,.venv,dist,build}' -- 'TODO|FIXME'
 
 # Literal search limited to src, JS/TS only
-rg --json -n -F -S -t js -t ts -g 'src/**' -- 'use client'
+rg --json -n --no-config -F -S -t js -t ts -g 'src/**' -- 'use client'
 
 # Include hidden & bypass ignores
-rg --json -n -S --hidden --no-ignore -- '^secret_key\\s*='
+rg --json -n --no-config -S --hidden --no-ignore -- '^secret_key\\s*='
+
+# PCRE2 with lookarounds (if available)
+rg --json -n --no-config -P -S -- '(?<=^import ).*(?= from \")'
 ```
 
 Exit Conditions:
@@ -111,6 +122,7 @@ Signals to Watch:
 Parsing:
 - Consume JSON Lines. Types include: `begin`, `match`, `context`, `end`, `summary`.
 - For each `match`, extract `data.path.text`, `data.lines.text`, `data.line_number`, `data.submatches[*].start/end`.
+ - Note: `line_number` is 1‑based; adjust if your consumer expects 0‑based positions.
 
 Aggregation:
 - Group by file, keep matches ordered by line number.
@@ -129,6 +141,7 @@ User‑Facing Summary:
 - Matches: total, files affected, top files by count.
 - Snippets: up to 3 per file unless asked for more.
 - Commands Repro: exact `rg` command used to reproduce.
+ - Configuration Note: explicitly state `--no-config` was used to avoid `RIPGREP_CONFIG_PATH`.
 
 Machine‑Readable Shape (internal):
 ```json
@@ -174,18 +187,21 @@ Recovery Strategies:
 - Literal vs Regex: `-F` for literal, default is regex.
 - Case Policy: `-S` smart, `-i` ignore case, `-s` case‑sensitive.
 - Types: `-t <lang>` (repeatable), list with `rg --type-list`.
+- Type groups: `--type-add web:*.{js,ts,jsx,tsx}` then `-t web`.
 - Globs: `-g '<glob>'` include; `-g '!<glob>'` exclude; `--iglob` for case‑insensitive.
 - JSON: `--json` emits NDJSON events; parse `match` events for results.
+- Config: ignore user config with `--no-config` for reproducibility.
+- Advanced regex: use `-P` (PCRE2) if installed.
 
 ## Examples
 
 ```bash
 # 1) Find TODOs ignoring vendor/outputs
-rg --json -n -S -g '!{.git,node_modules,.venv,dist,build,.next}' -- 'TODO|FIXME'
+rg --json -n --no-config -S -g '!{.git,node_modules,.venv,dist,build,.next}' -- 'TODO|FIXME'
 
 # 2) Search only Python and Rust files
-rg --json -n -S -t py -t rust -- 'async|await'
+rg --json -n --no-config -S -t py -t rust -- 'async|await'
 
 # 3) Literal string in src/ with 2 lines context
-rg --json -n -F -C 2 -g 'src/**' -- 'use client'
+rg --json -n --no-config -F -C 2 -g 'src/**' -- 'use client'
 ```
