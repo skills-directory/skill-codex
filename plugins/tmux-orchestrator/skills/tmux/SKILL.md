@@ -20,6 +20,10 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - `MASTER_WINDOW=master`
 - `WORKERS_WINDOW=workers`
 - `WORKERS=4`
+- `TMUX_BASE_INDEX=1`, `TMUX_PANE_BASE_INDEX=1` (pane index starts at 1)
+- `TMUX_HISTORY_LIMIT=50000` (larger scrollback for agent output)
+- `TMUX_REMAIN_ON_EXIT=on` (inspect crashed panes)
+- `TMUX_ALLOW_RENAME=off` (keep titles stable)
 
 ## Subcommands
 - `init [N]`: create session with `master` + `N` worker panes (default: `$WORKERS`)
@@ -30,6 +34,7 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - `status`: list panes in the session
 - `kill`: kill the session
 - `capture [DIR]`: save the text of each pane to files under `DIR` (default `logs/tmux/<session>/snapshots`)
+- `logs-on` / `logs-off`: toggle per-pane logging via `pipe-pane` into `logs/tmux/<session>/pipes/*.log`
 
 ## Task Queue (Minimal)
 Backed by a filesystem queue under `var/tmux/<session>/tasks`:
@@ -86,6 +91,10 @@ WORKERS=6 ./scripts/tmux_orchestrator.sh init
 
 # Stop workers
 ./scripts/tmux_orchestrator.sh tasks-stop
+
+# Optional per-pane logging
+./scripts/tmux_orchestrator.sh logs-on
+./scripts/tmux_orchestrator.sh logs-off
 ```
 
 ## Safety
