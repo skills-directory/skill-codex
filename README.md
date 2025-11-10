@@ -423,6 +423,46 @@ Preview it against the current workspace:
 sg run -r plugins/ast-grep-explorer/examples/rules --json=stream -n --dir . --lang typescript
 ```
 
+---
+
+# Tmux Orchestrator Plugin
+
+A minimal tmux orchestration plugin that uses a single shell script to create a master + workers flow for coordinating other agents.
+
+## What It Does
+- Creates an isolated tmux server and a session with `master` and `workers`
+- Splits `workers` window into N panes
+- Runs commands on all workers or a single worker
+- Provides attach/status/kill and optional capture of pane text
+
+## Usage
+
+```bash
+/plugin marketplace add https://github.com/skills-directory/skill-codex
+/plugin install tmux-orchestrator
+```
+
+Script:
+```bash
+# Create with 6 workers, then attach
+WORKERS=6 ./scripts/tmux_orchestrator.sh init
+./scripts/tmux_orchestrator.sh attach
+
+# Broadcast to all workers
+./scripts/tmux_orchestrator.sh run-all "echo hello"
+
+# Target a single worker
+./scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
+
+# Master only
+./scripts/tmux_orchestrator.sh run-master "codex --version"
+
+# Status, capture, teardown
+./scripts/tmux_orchestrator.sh status
+./scripts/tmux_orchestrator.sh capture
+./scripts/tmux_orchestrator.sh kill
+```
+
 ## Troubleshooting
 
 ### Common Issues
