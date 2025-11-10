@@ -332,4 +332,4 @@ This marketplace follows the Skills Directory contribution guidelines. Plugin su
 Official Skills Directory marketplace for Claude Code extensions.
 
 ### Resources
-[Readme](#readme-ov-file)
+[Readme](#skills-directory-plugins-marketplace)
