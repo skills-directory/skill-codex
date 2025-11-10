@@ -245,15 +245,49 @@ cmd_tasks_enqueue() {
   echo "Enqueued task ${id}"
 }
 
+parse_subset() {
+  # Input example: "0,2-3,7"
+  local spec="$1"
+  local out=()
+  local IFS=',' part
+  for part in $spec; do
+    if [[ "$part" =~ ^[0-9]+-[0-9]+$ ]]; then
+      local a="${part%-*}" b="${part#*-}"
+      if [[ $a -le $b ]]; then
+        local i
+        for ((i=a;i<=b;i++)); do out+=("$i"); done
+      fi
+    elif [[ "$part" =~ ^[0-9]+$ ]]; then
+      out+=("$part")
+    fi
+  done
+  printf "%s\n" "${out[@]}"
+}
+
 cmd_tasks_start() {
   ensure_tasks_dirs
-  # Start worker loop in each worker pane
+  local subset=""
+  if [[ "${1:-}" == "--subset" ]]; then
+    subset="$2"; shift 2 || true
+  fi
+  # Start worker loop in selected panes (or all)
   local panes; panes=$(tmuxc list-panes -t "${SESSION}:${WORKERS_WINDOW}" -F '#{pane_index}' 2>/dev/null) || die "workers window not found"
   local idx
-  for idx in $panes; do
-    tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "scripts/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
-  done
-  echo "Started task workers in window '${WORKERS_WINDOW}'."
+  if [[ -n "$subset" ]]; then
+    # make set of allowed indices
+    declare -A allow=()
+    while read -r i; do allow["$i"]=1; done < <(parse_subset "$subset")
+    for idx in $panes; do
+      [[ -n "${allow[$idx]:-}" ]] || continue
+      tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "scripts/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
+    done
+    echo "Started task workers in subset: ${subset}"
+  else
+    for idx in $panes; do
+      tmuxc send-keys -t "${SESSION}:${WORKERS_WINDOW}.${idx}" "scripts/tmux_task_worker.sh '${TASK_ROOT}' ${idx}" C-m
+    done
+    echo "Started task workers in window '${WORKERS_WINDOW}'."
+  fi
 }
 
 cmd_tasks_stop() {
