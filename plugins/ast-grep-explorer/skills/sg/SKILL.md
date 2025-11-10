@@ -177,13 +177,18 @@ sg run -p 'call_expression(callee: identifier(name: \"console\"))' \
 sg run -p 'identifier(name: \"foo\")' --rewrite 'bar' \
   --dry-run --json=stream -n --lang typescript
 
-# 3) Use a rule directory with fixes
+# 3) Use a rule directory with fixes (preview)
 sg run -r rules/ --json=stream -n --dir src/ --lang typescript
 
 # 4) Run the built-in example rule (no-console) from this repo
 sg run -r plugins/ast-grep-explorer/examples/rules \
   --json=stream -n --dir . --lang typescript \
   --globs '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'
+
+# 5) Apply fixes (dangerous): remove --dry-run to write changes
+#    Always commit or back up first. Run on a scoped directory and review diff.
+sg run -p 'identifier(name: \"foo\")' --rewrite 'bar' \
+  --json=stream -n --lang typescript  # note: no --dry-run here
 ```
 
 ## References
