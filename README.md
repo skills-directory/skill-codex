@@ -461,6 +461,23 @@ WORKERS=6 ./scripts/tmux_orchestrator.sh init
 ./scripts/tmux_orchestrator.sh status
 ./scripts/tmux_orchestrator.sh capture
 ./scripts/tmux_orchestrator.sh kill
+
+## Tasks (Queue)
+Minimal task management backed by the filesystem:
+```bash
+# Initialize queue and start worker loops
+./scripts/tmux_orchestrator.sh tasks-init
+./scripts/tmux_orchestrator.sh tasks-start
+
+# Enqueue tasks
+./scripts/tmux_orchestrator.sh tasks-enqueue -- echo "hello"
+./scripts/tmux_orchestrator.sh tasks-enqueue -d src -- rg --json -n --no-config -S TODO
+
+# Observe and control
+./scripts/tmux_orchestrator.sh tasks-list all
+./scripts/tmux_orchestrator.sh tasks-tail <task_id>
+./scripts/tmux_orchestrator.sh tasks-stop
+```
 ```
 
 ## Troubleshooting
