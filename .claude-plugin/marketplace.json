@@ -18,6 +18,11 @@
       "name": "ast-grep-explorer",
       "source": "./plugins/ast-grep-explorer",
       "description": "AST-based code search and refactor via ast-grep (sg) with structured output and safe defaults"
+    },
+    {
+      "name": "tmux-orchestrator",
+      "source": "./plugins/tmux-orchestrator",
+      "description": "Minimal tmux orchestration via shell: master + workers session with run-all/one, attach, status, kill"
     }
   ]
 }
