@@ -17,8 +17,7 @@ cmd=(rg --json -n --no-config -S \
   -- 'README|README.md' .)
 echo "+ ${cmd[*]}"
 set +e
-output="$("${cmd[@]}" 2>/dev/null)"
-status=$?
+output="$("${cmd[@]}" 2>/dev/null)"; status=$?
 set -e
 
 if [[ $status -gt 1 ]]; then
@@ -27,7 +26,11 @@ if [[ $status -gt 1 ]]; then
 fi
 
 matches=$(printf '%s\n' "$output" | grep -c '"type":"match"' || true)
-files=$(printf '%s\n' "$output" | jq -r 'select(.type=="summary")|.data.stats.matched' 2>/dev/null || echo "0")
+if command -v jq >/dev/null 2>&1; then
+  files=$(printf '%s\n' "$output" | jq -r 'select(.type=="summary")|.data.stats.matched' 2>/dev/null || echo "0")
+else
+  # Fallback: best-effort parse
+  files=$(printf '%s\n' "$output" | grep -m1 -o '"matched":[0-9]\+' | cut -d: -f2 || echo "0")
+fi
 echo "==> JSON lines parsed: matches=$matches, files_with_matches=${files}"
 echo "OK: ripgrep smoke check completed"
-
