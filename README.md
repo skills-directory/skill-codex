@@ -342,6 +342,7 @@ Result: Adds `-t py` and returns structured results with file/line/column.
 - Faster than naive grep; respects `.gitignore` by default
 - JSON Lines enable precise formatting and navigation
 - Safe defaults with opt‑in expansion for deep searches
+- Reproducible: uses `--no-config` so results aren’t affected by user `RIPGREP_CONFIG_PATH`
 
 ---
 
@@ -369,6 +370,7 @@ The skill builds `sg run` commands with safe defaults:
 - Pattern search: `sg run -p '<pattern>' [--lang <lang>]`
 - Rule directory: `sg run -r rules/`
 - Rewrite preview: `sg run -p '<pattern>' --rewrite '<replacement>' --dry-run`
+ - Diagnostics: add `--inspect` to debug rule/pattern behavior
 
 📖 See [SKILL.md](./plugins/ast-grep-explorer/skills/sg/SKILL.md) for the 7‑step workflow and examples.
 
