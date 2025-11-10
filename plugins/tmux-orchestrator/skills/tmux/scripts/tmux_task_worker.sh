@@ -16,6 +16,7 @@ mkdir -p "$TASKS_DIR"/{queue,running,done,failed,logs,tmp}
 LOCK_FILE="$TASKS_DIR/queue.lock"
 
 have_flock() { command -v flock >/dev/null 2>&1; }
+have_stdbuf() { command -v stdbuf >/dev/null 2>&1; }
 
 pop_task() {
   # Attempts to atomically move one task from queue/ to running/
@@ -96,10 +97,14 @@ run_task() {
 
   # Execute with process substitution to both log and display in pane; record child PID
   local rc=0 child=0
+  local exec_cmd="exec ${TASK_CMD}"
+  if have_stdbuf; then
+    exec_cmd="exec stdbuf -oL -eL ${TASK_CMD}"
+  fi
   if [[ -n "$TASK_CWD" ]]; then
     (
       cd "$TASK_CWD" || exit 1
-      bash -lc "exec stdbuf -oL -eL ${TASK_CMD}" \
+      bash -lc "$exec_cmd" \
         > >(tee -a "$out") 2> >(tee -a "$err" >&2) &
       child=$!
       echo "pid=$child" >> "$info"
@@ -108,7 +113,7 @@ run_task() {
     )
     rc=$?
   else
-    bash -lc "exec stdbuf -oL -eL ${TASK_CMD}" \
+    bash -lc "$exec_cmd" \
       > >(tee -a "$out") 2> >(tee -a "$err" >&2) &
     child=$!
     echo "pid=$child" >> "$info"
