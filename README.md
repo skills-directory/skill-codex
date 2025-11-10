@@ -344,6 +344,13 @@ Result: Adds `-t py` and returns structured results with file/line/column.
 - Safe defaults with opt‑in expansion for deep searches
 - Reproducible: uses `--no-config` so results aren’t affected by user `RIPGREP_CONFIG_PATH`
 
+## Smoke Test
+
+```bash
+bash scripts/rg_smoke.sh
+```
+Runs a minimal JSON search with reproducible flags and prints a small summary.
+
 ---
 
 # AST-Grep Explorer Plugin
@@ -398,6 +405,23 @@ Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=strea
 ## Prerequisites
 
 - ast-grep installed (`sg --version`)
+
+## Smoke Test
+
+```bash
+bash scripts/sg_smoke.sh
+```
+Runs a benign structural search; “no matches” is OK and treated as success.
+
+## Example Rule
+
+This repo includes a demo rule:
+- `plugins/ast-grep-explorer/examples/rules/no-console.yml`
+
+Preview it against the current workspace:
+```bash
+sg run -r plugins/ast-grep-explorer/examples/rules --json=stream -n --dir . --lang typescript
+```
 
 ## Troubleshooting
 
