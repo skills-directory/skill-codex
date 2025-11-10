@@ -22,8 +22,9 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - `WORKERS=4`
 - `TMUX_BASE_INDEX=1`, `TMUX_PANE_BASE_INDEX=1` (pane index starts at 1)
 - `TMUX_HISTORY_LIMIT=50000` (larger scrollback for agent output)
-- `TMUX_REMAIN_ON_EXIT=on` (inspect crashed panes)
+- `TMUX_REMAIN_ON_EXIT=on` (inspect crashed panes) — set to `failed` if your tmux supports it, to keep only failed panes
 - `TMUX_ALLOW_RENAME=off` (keep titles stable)
+- `WORKER_LAYOUT=tiled` (future: allow `even-horizontal`, `even-vertical`)
 
 ## Subcommands
 - `init [N]`: create session with `master` + `N` worker panes (default: `$WORKERS`)
@@ -55,6 +56,7 @@ Backed by a filesystem queue under `var/tmux/<session>/tasks`:
 - `tasks-retry <id>`: move a failed task back to `queue/`
 - `tasks-paths`: print directories for the current session
 - `tasks-health`: show counts and detect stale running tasks (missing PIDs)
+- `tasks-clean [--hours N | --keep N]`: prune done/failed/logs by age or keep last N
 
 ## Barriers
 - `barrier-wait <name>`: wait for a named signal (`tmux wait-for`)
