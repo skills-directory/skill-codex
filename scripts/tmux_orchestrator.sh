@@ -79,11 +79,11 @@ cmd_init() {
   # Create session with master window
   tmuxc new-session -d -s "${SESSION}" -n "${MASTER_WINDOW}"
   # Apply recommended server/global options on isolated server
-  tmuxc set-option -g base-index "${TMUX_BASE_INDEX}"
-  tmuxc set-option -g pane-base-index "${TMUX_PANE_BASE_INDEX}"
-  tmuxc set-option -g history-limit "${TMUX_HISTORY_LIMIT}"
-  tmuxc set-option -g remain-on-exit "${TMUX_REMAIN_ON_EXIT}"
-  tmuxc set-option -g allow-rename "${TMUX_ALLOW_RENAME}"
+  tmuxc set-option -t "${SESSION}" base-index "${TMUX_BASE_INDEX}"
+  tmuxc set-option -t "${SESSION}" pane-base-index "${TMUX_PANE_BASE_INDEX}"
+  tmuxc set-option -t "${SESSION}" history-limit "${TMUX_HISTORY_LIMIT}"
+  tmuxc set-window-option -t "${SESSION}:" remain-on-exit "${TMUX_REMAIN_ON_EXIT}"
+  tmuxc set-window-option -t "${SESSION}:" allow-rename "${TMUX_ALLOW_RENAME}"
   # Create workers window
   tmuxc new-window -t "${SESSION}:" -n "${WORKERS_WINDOW}"
   # Ensure at least 1 pane exists; split to reach n panes
