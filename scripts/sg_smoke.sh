@@ -28,5 +28,5 @@ fi
 
 matches=$(printf '%s\n' "$output" | grep -c '\"kind\":\"match\"' || true)
 echo "==> Stream parsed: matches=$matches"
+echo "Tip: scope with --dir and set --lang <language> for precision (e.g., --lang typescript)."
 echo "OK: ast-grep smoke check completed"
-
