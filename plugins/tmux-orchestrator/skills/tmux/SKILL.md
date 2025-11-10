@@ -35,6 +35,7 @@ Essential tmux orchestration via a single shell script. Creates an isolated tmux
 - `kill`: kill the session
 - `capture [DIR]`: save the text of each pane to files under `DIR` (default `logs/tmux/<session>/snapshots`)
 - `logs-on` / `logs-off`: toggle per-pane logging via `pipe-pane` into `logs/tmux/<session>/pipes/*.log`
+  - If `scripts/tslog.awk` is present, logs are prefixed with UTC timestamps.
 
 ## Task Queue (Minimal)
 Backed by a filesystem queue under `var/tmux/<session>/tasks`:
@@ -53,6 +54,11 @@ Backed by a filesystem queue under `var/tmux/<session>/tasks`:
 - `tasks-cancel <id>`: cancel a queued or running task
 - `tasks-retry <id>`: move a failed task back to `queue/`
 - `tasks-paths`: print directories for the current session
+- `tasks-health`: show counts and detect stale running tasks (missing PIDs)
+
+## Barriers
+- `barrier-wait <name>`: wait for a named signal (`tmux wait-for`)
+- `barrier-signal <name>`: signal a named barrier (`tmux wait-for -S`)
 
 ## Examples
 ```bash
@@ -95,6 +101,10 @@ WORKERS=6 ./scripts/tmux_orchestrator.sh init
 # Optional per-pane logging
 ./scripts/tmux_orchestrator.sh logs-on
 ./scripts/tmux_orchestrator.sh logs-off
+
+# Barriers
+./scripts/tmux_orchestrator.sh barrier-wait phase1 &   # in one pane
+./scripts/tmux_orchestrator.sh barrier-signal phase1   # in another pane
 ```
 
 ## Safety
