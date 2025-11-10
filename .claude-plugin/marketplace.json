@@ -13,6 +13,11 @@
       "name": "ripgrep-explorer",
       "source": "./plugins/ripgrep-explorer",
       "description": "Ripgrep-powered code search for Claude Code with structured JSON results and context navigation"
+    },
+    {
+      "name": "ast-grep-explorer",
+      "source": "./plugins/ast-grep-explorer",
+      "description": "AST-based code search and refactor via ast-grep (sg) with structured output and safe defaults"
     }
   ]
 }
