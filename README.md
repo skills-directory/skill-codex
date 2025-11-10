@@ -402,6 +402,12 @@ Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=strea
 /plugin install ast-grep-explorer
 ```
 
+### References
+- Each skill has a `REFERENCES.md` next to its `SKILL.md` with curated links to official docs and best practices:
+  - Tmux: `plugins/tmux-orchestrator/skills/tmux/REFERENCES.md`
+  - Ripgrep: `plugins/ripgrep-explorer/skills/rg/REFERENCES.md`
+  - AST-Grep: `plugins/ast-grep-explorer/skills/sg/REFERENCES.md`
+
 ## Prerequisites
 
 - ast-grep installed (`sg --version`)
