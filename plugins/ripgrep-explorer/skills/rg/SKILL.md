@@ -84,6 +84,7 @@ Notes:
 - JSON constraints: `--json` cannot be combined with `--files`, `--files-with-matches`,
   `--files-without-match`, `--count`, or `--count-matches`.
 - Type shortcuts: define custom groups with `--type-add web:*.{js,ts,jsx,tsx}`.
+ - Large repos: consider `--max-filesize 1M` and `--max-columns-preview` to avoid performance spikes on giant files.
 
 Examples:
 ```bash
@@ -192,6 +193,18 @@ Recovery Strategies:
 - JSON: `--json` emits NDJSON events; parse `match` events for results.
 - Config: ignore user config with `--no-config` for reproducibility.
 - Advanced regex: use `-P` (PCRE2) if installed.
+
+### Ready‑Made Type Groups (copy and adapt)
+```bash
+# Web frontend
+rg --type-add web:*.{js,jsx,ts,tsx,css,scss,vue,svelte}
+
+# Python project
+rg --type-add pyproj:*.{py,pyi} -t pyproj
+
+# Go project
+rg --type-add goall:*.{go,mod,sum} -t goall
+```
 
 ## Examples
 
