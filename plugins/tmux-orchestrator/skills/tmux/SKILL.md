@@ -1,0 +1,61 @@
+---
+name: tmux
+description: Use to spin up a minimal master/workers tmux session and run commands across workers or a specific pane. Shell-only implementation.
+---
+
+# Tmux Orchestrator (Minimal)
+
+Essential tmux orchestration via a single shell script. Creates an isolated tmux server, a session with a `master` window and a `workers` window, and provides subcommands to run commands across all workers or a single worker.
+
+## Prerequisites
+- tmux installed (`tmux -V`)
+
+## Script
+- `scripts/tmux_orchestrator.sh`
+- Uses a dedicated server via `tmux -L <socket>` to avoid interfering with a user’s own tmux.
+
+## Defaults (overridable via env)
+- `TMUX_SOCKET=claude`
+- `TMUX_SESSION=agents`
+- `MASTER_WINDOW=master`
+- `WORKERS_WINDOW=workers`
+- `WORKERS=4`
+
+## Subcommands
+- `init [N]`: create session with `master` + `N` worker panes (default: `$WORKERS`)
+- `attach`: attach to the session
+- `run-all CMD`: send CMD to all worker panes (temporarily enables `synchronize-panes`)
+- `run-one IDX CMD`: send CMD to a single worker pane by index (0-based)
+- `run-master CMD`: send CMD to the master window pane 0
+- `status`: list panes in the session
+- `kill`: kill the session
+- `capture [DIR]`: save the text of each pane to files under `DIR` (default `logs/tmux/<session>/snapshots`)
+
+## Examples
+```bash
+# Create session with 6 workers and attach
+WORKERS=6 ./scripts/tmux_orchestrator.sh init
+./scripts/tmux_orchestrator.sh attach
+
+# Broadcast command to all workers
+./scripts/tmux_orchestrator.sh run-all "rg --json -n --no-config -S 'TODO|FIXME'"
+
+# Run tests on worker 2 only
+./scripts/tmux_orchestrator.sh run-one 2 "pytest -q"
+
+# Run something on master
+./scripts/tmux_orchestrator.sh run-master "codex --version"
+
+# Check status and capture output
+./scripts/tmux_orchestrator.sh status
+./scripts/tmux_orchestrator.sh capture
+
+# Tear down
+./scripts/tmux_orchestrator.sh kill
+```
+
+## Safety
+- Shell-only; no file modifications except optional capture to `logs/`.
+- Isolated tmux server via `-L <socket>`.
+- Idempotent `init` (won’t recreate an existing session).
+
