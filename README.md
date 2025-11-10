@@ -343,6 +343,60 @@ Result: Adds `-t py` and returns structured results with file/line/column.
 - JSON Lines enable precise formatting and navigation
 - Safe defaults with opt‑in expansion for deep searches
 
+---
+
+# AST-Grep Explorer Plugin
+
+An AST-aware code search and refactoring plugin powered by ast-grep (`sg`). It matches syntax nodes instead of plain text and can apply safe structural rewrites with dry-run by default.
+
+## What It Does
+
+- Structural search: query AST patterns across supported languages
+- Rule-based scans: run YAML rules with optional `fix:` blocks
+- Safe refactors: `--dry-run` previews replacements before applying
+- Structured output: streaming JSON for precise navigation
+
+## How It Works
+
+The skill builds `sg run` commands with safe defaults:
+
+### Defaults
+- JSON: `--json=stream -n`
+- Excludes: `-g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'`
+- Read-only unless rewrite is requested; refactors use `--dry-run` unless you confirm apply
+
+### Common Variants
+- Pattern search: `sg run -p '<pattern>' [--lang <lang>]`
+- Rule directory: `sg run -r rules/`
+- Rewrite preview: `sg run -p '<pattern>' --rewrite '<replacement>' --dry-run`
+
+📖 See [SKILL.md](./plugins/ast-grep-explorer/skills/sg/SKILL.md) for the 7‑step workflow and examples.
+
+## Practical Examples
+
+### Example: Find console calls in TS/JS
+```
+Use ast-grep to find console calls in TypeScript and JavaScript
+```
+Runs `sg run -p 'call_expression(callee: identifier(name: "console"))' --json=stream -n -t ts -t js` and returns grouped, navigable matches.
+
+### Example: Preview a rename refactor
+```
+Rename identifier 'foo' to 'bar' in TypeScript (preview only)
+```
+Runs `sg run -p 'identifier(name: "foo")' --rewrite 'bar' --dry-run --json=stream -n -t ts` and shows proposed edits.
+
+## Installation
+
+```bash
+/plugin marketplace add https://github.com/skills-directory/skill-codex
+/plugin install ast-grep-explorer
+```
+
+## Prerequisites
+
+- ast-grep installed (`sg --version`)
+
 ## Troubleshooting
 
 ### Common Issues
