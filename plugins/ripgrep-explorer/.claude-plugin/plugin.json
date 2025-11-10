@@ -1,0 +1,8 @@
+{
+  "name": "ripgrep-explorer",
+  "description": "Ripgrep-powered code search for Claude Code with structured JSON results and context navigation",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skills Directory"
+  }
+}
