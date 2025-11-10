@@ -283,6 +283,66 @@ For API-level details, consult the official Codex documentation:
 - [Codex Configuration Guide](https://github.com/openai/codex/blob/main/docs/config.md)
 - [Codex Exec Command Reference](https://github.com/openai/codex/blob/main/docs/exec.md)
 
+---
+
+# Ripgrep Explorer Plugin
+
+A Claude Code plugin that enables fast, structured code search using ripgrep (rg) with JSON output and sensible defaults.
+
+## What Is Ripgrep Explorer?
+
+**Blazing‑fast file/code search with structured results.**
+
+This plugin standardizes rg usage so you can quickly locate symbols, TODOs, and patterns across repos while respecting ignores and providing JSON‑parsed results suitable for navigation or follow‑ups.
+
+## How It Works
+
+The skill constructs safe, reproducible rg commands:
+
+### Defaults
+- JSON output: `--json -n --color never`
+- Smart case: `-S`
+- Excludes: `-g '!{.git,node_modules,.venv,dist,build,.next,.cache,coverage}'`
+
+### Common Variants
+- Literal search: add `-F`
+- Types: `-t py -t js -t ts ...`
+- Globs: `-g 'src/**'`, `--iglob '*.test.*'`
+- Expand scope: `--hidden`, `--no-ignore`
+
+📖 See [SKILL.md](./plugins/ripgrep-explorer/skills/rg/SKILL.md) for the 7‑step workflow and examples.
+
+## Practical Examples
+
+### Example: Find TODOs
+```
+Use ripgrep to find TODO|FIXME across the repo
+```
+Result: Runs `rg --json -n -S -g '!{.git,node_modules,.venv,dist,build}' -- 'TODO|FIXME'` and returns grouped matches.
+
+### Example: Limit to Python files
+```
+Search 'async|await' only in Python
+```
+Result: Adds `-t py` and returns structured results with file/line/column.
+
+## Installation
+
+```bash
+/plugin marketplace add https://github.com/skills-directory/skill-codex
+/plugin install ripgrep-explorer
+```
+
+## Prerequisites
+
+- ripgrep installed (`rg --version`)
+
+## Why It Helps
+
+- Faster than naive grep; respects `.gitignore` by default
+- JSON Lines enable precise formatting and navigation
+- Safe defaults with opt‑in expansion for deep searches
+
 ## Troubleshooting
 
 ### Common Issues
