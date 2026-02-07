@@ -15,12 +15,25 @@ Enable Claude Code to invoke the Codex CLI (`codex exec` and session resumes) fo
 
 ## Installation
 
-Download this repo and store the skill in ~/.claude/skills/codex
+This repository is structured as a [Claude Code Plugin](https://code.claude.com/docs/en/plugins) with a marketplace. You can install it as a **plugin** (recommended) or extract it as a **standalone skill**.
+
+### Option 1: Plugin Installation (Recommended)
+
+Install via Claude Code's plugin system for automatic updates:
+
+```
+/plugin marketplace add skills-directory/skill-codex
+/plugin install skill-codex@skill-codex
+```
+
+### Option 2: Standalone Skill Installation
+
+Extract the skill folder manually:
 
 ```
 git clone --depth 1 git@github.com:skills-directory/skill-codex.git /tmp/skills-temp && \
 mkdir -p ~/.claude/skills && \
-cp -r /tmp/skills-temp/ ~/.claude/skills/codex && \
+cp -r /tmp/skills-temp/skills/codex ~/.claude/skills/codex && \
 rm -rf /tmp/skills-temp
 ```
 
@@ -38,12 +51,12 @@ Use codex to analyze this repository and suggest improvements for my claude code
 
 **Claude Code response:**
 Claude will activate the Codex skill and:
-1. Ask which model to use (`gpt-5` or `gpt-5-codex`) unless already specified in your prompt.
+1. Ask which model to use (`gpt-5.3-codex` or `gpt-5.2`) unless already specified in your prompt.
 2. Ask which reasoning effort level (`low`, `medium`, or `high`) unless already specified in your prompt.
 3. Select appropriate sandbox mode (defaults to `read-only` for analysis)
 4. Run a command like:
 ```bash
-codex exec -m gpt-5-codex \
+codex exec -m gpt-5.3-codex \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
   --full-auto \
@@ -55,4 +68,8 @@ codex exec -m gpt-5-codex \
 Claude will summarize the Codex analysis output, highlighting key suggestions and asking if you'd like to continue with follow-up actions.
 
 ### Detailed Instructions
-See `SKILL.md` for complete operational instructions, CLI options, and workflow guidance.
+See [`skills/codex/SKILL.md`](skills/codex/SKILL.md) for complete operational instructions, CLI options, and workflow guidance.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
