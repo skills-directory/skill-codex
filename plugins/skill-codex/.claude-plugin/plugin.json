@@ -1,5 +1,22 @@
 {
   "name": "skill-codex",
-  "description": "Claude Code skill to delegate prompts to OpenAI Codex CLI for code analysis, refactoring, and automated editing",
-  "version": "1.0.0"
+  "description": "Claude Code skill to delegate prompts to OpenAI Codex CLI for code analysis, refactoring, code review, and automated editing",
+  "version": "1.1.0",
+  "author": {
+    "name": "skills-directory",
+    "url": "https://github.com/skills-directory"
+  },
+  "homepage": "https://github.com/skills-directory/skill-codex",
+  "repository": "https://github.com/skills-directory/skill-codex",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "skill",
+    "codex",
+    "openai",
+    "automation",
+    "code-review",
+    "refactoring"
+  ]
 }

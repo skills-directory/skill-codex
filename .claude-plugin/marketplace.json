@@ -1,14 +1,25 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "skill-codex",
+  "description": "Marketplace for the skill-codex plugin, enabling Claude Code to delegate tasks to OpenAI Codex CLI",
   "owner": {
-    "name": "skills-directory"
+    "name": "skills-directory",
+    "url": "https://github.com/skills-directory"
   },
-  "description": "Claude Code skill to delegate prompts to OpenAI Codex CLI",
   "plugins": [
     {
       "name": "skill-codex",
       "source": "./plugins/skill-codex",
-      "description": "Delegate prompts to OpenAI Codex CLI for code analysis, refactoring, and automated editing"
+      "description": "Delegate prompts to OpenAI Codex CLI for code analysis, refactoring, code review, and automated editing",
+      "version": "1.1.0",
+      "category": "development",
+      "homepage": "https://github.com/skills-directory/skill-codex",
+      "tags": [
+        "skill",
+        "codex",
+        "automation",
+        "code-review"
+      ]
     }
   ]
 }
