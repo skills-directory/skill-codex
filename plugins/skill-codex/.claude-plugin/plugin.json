@@ -1,0 +1,5 @@
+{
+  "name": "skill-codex",
+  "description": "Claude Code skill to delegate prompts to OpenAI Codex CLI for code analysis, refactoring, and automated editing",
+  "version": "1.0.0"
+}

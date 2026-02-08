@@ -3,15 +3,12 @@
   "owner": {
     "name": "skills-directory"
   },
-  "metadata": {
-    "description": "Claude Code skill to delegate prompts to OpenAI Codex CLI"
-  },
+  "description": "Claude Code skill to delegate prompts to OpenAI Codex CLI",
   "plugins": [
     {
       "name": "skill-codex",
-      "source": ".",
-      "description": "Delegate prompts to OpenAI Codex CLI for code analysis, refactoring, and automated editing",
-      "license": "MIT"
+      "source": "./plugins/skill-codex",
+      "description": "Delegate prompts to OpenAI Codex CLI for code analysis, refactoring, and automated editing"
     }
   ]
 }
