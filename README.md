@@ -33,7 +33,7 @@ Extract the skill folder manually:
 ```
 git clone --depth 1 git@github.com:skills-directory/skill-codex.git /tmp/skills-temp && \
 mkdir -p ~/.claude/skills && \
-cp -r /tmp/skills-temp/skills/codex ~/.claude/skills/codex && \
+cp -r /tmp/skills-temp/plugins/skill-codex/skills/codex ~/.claude/skills/codex && \
 rm -rf /tmp/skills-temp
 ```
 
@@ -68,7 +68,7 @@ codex exec -m gpt-5.3-codex \
 Claude will summarize the Codex analysis output, highlighting key suggestions and asking if you'd like to continue with follow-up actions.
 
 ### Detailed Instructions
-See [`skills/codex/SKILL.md`](skills/codex/SKILL.md) for complete operational instructions, CLI options, and workflow guidance.
+See [`plugins/skill-codex/skills/codex/SKILL.md`](plugins/skill-codex/skills/codex/SKILL.md) for complete operational instructions, CLI options, and workflow guidance.
 
 ## License
 

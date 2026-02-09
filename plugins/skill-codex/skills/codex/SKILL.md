@@ -40,7 +40,7 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 Codex is powered by OpenAI models with their own knowledge cutoffs and limitations. Treat Codex as a **colleague, not an authority**.
 
 ### Guidelines
-- **Trust your own knowledge** when confident. If Codex claims something you know is incorrect (e.g., "Claude Opus 4.5 doesn't exist"), push back directly.
+- **Trust your own knowledge** when confident. If Codex claims something you know is incorrect, push back directly.
 - **Research disagreements** using WebSearch or documentation before accepting Codex's claims. Share findings with Codex via resume if needed.
 - **Remember knowledge cutoffs** - Codex may not know about recent releases, APIs, or changes that occurred after its training data.
 - **Don't defer blindly** - Codex can be wrong. Evaluate its suggestions critically, especially regarding:
@@ -51,9 +51,9 @@ Codex is powered by OpenAI models with their own knowledge cutoffs and limitatio
 ### When Codex is Wrong
 1. State your disagreement clearly to the user
 2. Provide evidence (your own knowledge, web search, docs)
-3. Optionally resume the Codex session to discuss the disagreement. **Identify yourself as Claude** so Codex knows it's a peer AI discussion:
+3. Optionally resume the Codex session to discuss the disagreement. **Identify yourself as Claude** so Codex knows it's a peer AI discussion. Use your actual model name (e.g., the model you are currently running as) instead of a hardcoded name:
    ```bash
-   echo "This is Claude (Opus 4.5) following up. I disagree with [X] because [evidence]. What's your take on this?" | codex exec --skip-git-repo-check resume --last 2>/dev/null
+   echo "This is Claude (<your current model name>) following up. I disagree with [X] because [evidence]. What's your take on this?" | codex exec --skip-git-repo-check resume --last 2>/dev/null
    ```
 4. Frame disagreements as discussions, not corrections - either AI could be wrong
 5. Let the user decide how to proceed if there's genuine ambiguity
