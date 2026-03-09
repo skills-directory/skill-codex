@@ -6,7 +6,7 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 # Codex Skill Guide
 
 ## Running a Task
-1. Ask the user (via `AskUserQuestion`) which model to run (`gpt-5.3-codex-spark`, `gpt-5.3-codex`, or `gpt-5.2`) AND which reasoning effort to use (`xhigh`, `high`, `medium`, or `low`) in a **single prompt with two questions**.
+1. Read `~/.codex/config.toml` to discover the user's default model (the `model` key). Ask the user (via `AskUserQuestion`) whether to use their default model or a different one, AND which reasoning effort to use (`xhigh`, `high`, `medium`, or `low`) in a **single prompt with two questions**. Do NOT hardcode model names—accept whatever model name the user provides, since `codex -m` accepts any valid model string.
 2. Select the sandbox mode required for the task; default to `--sandbox read-only` unless edits or network access are necessary.
 3. Assemble the command with the appropriate options:
    - `-m, --model <MODEL>`

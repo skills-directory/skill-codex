@@ -51,12 +51,12 @@ Use codex to analyze this repository and suggest improvements for my claude code
 
 **Claude Code response:**
 Claude will activate the Codex skill and:
-1. Ask which model to use (`gpt-5.3-codex-spark`, `gpt-5.3-codex`, or `gpt-5.2`) unless already specified in your prompt.
+1. Read `~/.codex/config.toml` to find the default model, and ask whether to use it or a different one (no hardcoded model list—any valid model string works).
 2. Ask which reasoning effort level (`low`, `medium`, or `high`) unless already specified in your prompt.
 3. Select appropriate sandbox mode (defaults to `read-only` for analysis)
 4. Run a command like:
 ```bash
-codex exec -m gpt-5.3-codex-spark \
+codex exec -m <MODEL> \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
   --full-auto \
