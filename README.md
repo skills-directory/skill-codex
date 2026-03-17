@@ -1,4 +1,4 @@
-Leave a star ⭐ if you like it 😘
+NOTE: If you want to go more autonomous with your agentic workflows check this out: [klaudworks/ralph-meets-rex](https://github.com/klaudworks/ralph-meets-rex)
 
 # Codex Integration for Claude Code
 
