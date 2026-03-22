@@ -1,0 +1,8 @@
+name: skill-codex
+version: 1.1.0
+description: Enable Claude Code to delegate tasks to OpenAI Codex CLI for code analysis, refactoring, and automated editing.
+author: skills-directory
+license: MIT
+
+includes:
+  - plugins/skill-codex/**/*
