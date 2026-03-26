@@ -69,7 +69,3 @@ Claude will summarize the Codex analysis output, highlighting key suggestions an
 
 ### Detailed Instructions
 See [`plugins/skill-codex/skills/codex/SKILL.md`](plugins/skill-codex/skills/codex/SKILL.md) for complete operational instructions, CLI options, and workflow guidance.
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.
