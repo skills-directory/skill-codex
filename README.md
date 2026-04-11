@@ -1,5 +1,7 @@
 Note: If you want a more autonomous setup for agentic workflows, check out [klaudworks/ralph-meets-rex](https://github.com/klaudworks/ralph-meets-rex).
 
+If you want a broader repo-aware Claude Code workflow for SEO, content, and Google Ads tasks, check out [nowork-studio/toprank](https://github.com/nowork-studio/toprank).
+
 # Codex Integration for Claude Code
 
 <img width="2288" height="808" alt="skillcodex" src="https://github.com/user-attachments/assets/85336a9f-4680-479e-b3fe-d6a68cadc051" />
