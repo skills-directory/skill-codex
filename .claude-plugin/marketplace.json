@@ -11,7 +11,7 @@
       "name": "skill-codex",
       "source": "./plugins/skill-codex",
       "description": "Delegate prompts to OpenAI Codex CLI for code analysis, refactoring, code review, and automated editing",
-      "version": "1.1.0",
+      "version": "1.3.0",
       "category": "development",
       "homepage": "https://github.com/skills-directory/skill-codex",
       "tags": [
