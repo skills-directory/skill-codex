@@ -23,6 +23,26 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 8. Run the command, capture stdout/stderr (filtered as appropriate), and summarize the outcome for the user.
 9. **After Codex completes**, inform the user: "You can resume this Codex session at any time by saying 'codex resume' or asking me to continue with additional analysis or changes."
 
+## Prompt templates (optional)
+
+For common tasks you can build the prompt from a ready-made template instead of writing it freeform. Templates live in [`templates/`](templates/) next to this file; each holds a prompt skeleton with `<placeholders>` and a built-in rigorous-colleague stance (findings first, severity-ordered, cite `file:line`, push back, flag uncertainty).
+
+Selection is inference-first and never blocks the user:
+
+- If the request clearly matches a type (or names one), read the matching `templates/<name>.md` and fill its skeleton with the concrete scope/goal.
+- Otherwise, treat the user's request as the freeform prompt (the current default). Do **not** ask a separate question just to pick a template.
+
+| Type | File | Use when the user wants... |
+|------|------|----------------------------|
+| Code Review | `templates/code-review.md` | a review / second opinion / quality check |
+| Refactoring | `templates/refactor.md` | to refactor, clean up, or restructure |
+| Security Audit | `templates/security-audit.md` | a security / vulnerability audit |
+| Bug Hunt | `templates/bug-hunt.md` | to root-cause a specific bug or failure |
+| Test Gen | `templates/test-gen.md` | tests added or a coverage/gap analysis |
+| General | `templates/general.md` | a structured prompt when no specific template fits (opt-in; unmatched requests otherwise stay freeform) |
+
+Templates only shape the prompt text passed to `codex exec`. Model, reasoning effort, sandbox mode, stderr handling, and resume behavior stay governed by the rest of this guide.
+
 ### Quick Reference
 | Use case | Sandbox mode | Key flags |
 | --- | --- | --- |
