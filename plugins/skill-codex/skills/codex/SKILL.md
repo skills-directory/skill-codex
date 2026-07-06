@@ -5,6 +5,24 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 
 # Codex Skill Guide
 
+## Pre-flight (before every run)
+
+Before the first `codex exec`, confirm the CLI is present and authenticated. This turns an otherwise cryptic mid-run failure into one clear, actionable message:
+
+```bash
+command -v codex >/dev/null 2>&1 || { echo "ERROR: codex not found in PATH"; exit 1; }
+codex --version
+if codex login status >/dev/null 2>&1; then
+  echo "Auth: signed in with ChatGPT"
+elif [ -n "$OPENAI_API_KEY" ]; then
+  echo "Auth: OPENAI_API_KEY is set"
+else
+  echo "ERROR: Codex is not authenticated"; exit 1
+fi
+```
+
+If neither auth source is present, stop and tell the user to run `codex login` (Sign in with ChatGPT) or export an API key (`export OPENAI_API_KEY=sk-...`). Do not start a `codex exec` run until this check passes.
+
 ## Running a Task
 1. Ask the user (via `AskUserQuestion`) which model to run (`gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, or `gpt-5.3-codex`) AND which reasoning effort to use (`xhigh`, `high`, `medium`, or `low`) in a **single prompt with two questions**.
 2. Select the sandbox mode required for the task; default to `--sandbox read-only` unless edits or network access are necessary.
