@@ -53,8 +53,8 @@ Codex produces **no intermediate output** — it writes the result only at compl
 | `medium` | 300s |
 | `high` | 600s |
 | `xhigh` | 1200s |
-| `max` | 2400s |
-| `ultra` | 4800s |
+| `max` | 1800s |
+| `ultra` | 1800s |
 
 ## Following Up
 - After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
