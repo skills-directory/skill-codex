@@ -6,7 +6,14 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 # Codex Skill Guide
 
 ## Running a Task
-1. Ask the user (via `AskUserQuestion`) which model to run (`gpt-5.6-sol` — **default**, `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, or `gpt-5.3-codex`) AND which reasoning effort to use (`xhigh`, `high`, `medium`, or `low`) in a **single prompt with two questions**. Default to `gpt-5.6-sol` when the user expresses no model preference (list it first / pre-selected).
+1. Ask the user (via `AskUserQuestion`) which **model** AND which **reasoning effort** to use, in a **single prompt with two questions**. When the user expresses no preference, default to `gpt-5.6-sol` at `high`.
+   - **Model** — default `gpt-5.6-sol`:
+     - *GPT-5.6:* `gpt-5.6-sol` (frontier / most capable — **default**), `gpt-5.6-terra` (balanced, everyday), `gpt-5.6-luna` (fast & affordable)
+     - *Legacy (kept for compatibility):* `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, `gpt-5.3-codex`
+   - **Reasoning effort** — default `high`: `low`, `medium`, `high`, `xhigh`, `max`, `ultra`.
+     - `max`/`ultra` require a GPT-5.6 model; `ultra` is only on `sol`/`terra` (`luna` caps at `max`); legacy models cap at `xhigh`.
+     - `ultra` = maximum reasoning **with automatic task delegation** (spawns sub-agents; slowest and most expensive — reserve for the hardest jobs).
+     - If the chosen effort exceeds the chosen model's maximum, fall back to that model's highest supported effort and tell the user.
 2. Select the sandbox mode required for the task; default to `--sandbox read-only` unless edits or network access are necessary.
 3. Assemble the command with the appropriate options:
    - `-m, --model <MODEL>`
