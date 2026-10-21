@@ -8,9 +8,9 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 ## Running a Task
 1. For a new session (resumes inherit the prior model/effort — see step 5), ask the user (via `AskUserQuestion`) which **model** AND which **reasoning effort** to use, in a **single prompt with two questions**. When the user expresses no preference, default to `gpt-6-astra` at `high`.
    - **Model** — default `gpt-6-astra`:
-     - *GPT-6:* `gpt-6-astra` (frontier / most capable — **default**)
+     - *GPT-6:* `gpt-6-astra` (frontier / most capable — **default**), `gpt-6.1-sol` (latest workhorse for coding and everyday work), `gpt-6-sol` (previous-generation workhorse), `gpt-6-luna` (fast & affordable, easier tasks)
      - *GPT-5.6:* `gpt-5.6-sol` (reliable agentic workhorse), `gpt-5.6-terra` (balanced, everyday), `gpt-5.6-luna` (fast & affordable)
-     - *Legacy (kept for compatibility):* `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, `gpt-5.3-codex`
+     - *Legacy (rejected as unsupported when Codex is signed in with a ChatGPT account):* `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, `gpt-5.3-codex`
    - **Reasoning effort** — default `high`: `low`, `medium`, `high`, `xhigh`, `max`, `ultra`.
      - `max`/`ultra` require a GPT-6 or GPT-5.6 model; `ultra` is only on `astra`/`sol`/`terra` (`luna` caps at `max`); legacy models cap at `xhigh`.
      - `ultra` = maximum reasoning **with automatic task delegation** (slowest and most expensive — reserve for the hardest jobs).
@@ -20,7 +20,6 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
    - `-m, --model <MODEL>`
    - `--config model_reasoning_effort="<low|medium|high|xhigh|max|ultra>"` (max/ultra only on GPT-6 / GPT-5.6 models; ultra only on astra/sol/terra — see step 1)
    - `--sandbox <read-only|workspace-write|danger-full-access>`
-   - `--full-auto`
    - `-C, --cd <DIR>`
    - `--skip-git-repo-check` (only when permitted by step 4)
    - `"your prompt here"` (as final positional argument)
@@ -41,8 +40,8 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 | Use case | Sandbox mode | Key flags |
 | --- | --- | --- |
 | Read-only review or analysis | `read-only` | `--sandbox read-only 2>/dev/null` |
-| Apply local edits | `workspace-write` | `--sandbox workspace-write --full-auto 2>/dev/null` |
-| Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access --full-auto 2>/dev/null` |
+| Apply local edits | `workspace-write` | `--sandbox workspace-write 2>/dev/null` |
+| Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access 2>/dev/null` |
 | Resume recent session | Inherited from original | `echo "prompt" \| codex exec resume --last 2>/dev/null` (inside Git by default; no configuration flags unless explicitly requested; apply step 4 to the skip flag) |
 | Run from another directory | Match task needs | `-C <DIR>` plus other flags `2>/dev/null` |
 
@@ -93,5 +92,5 @@ Codex is powered by OpenAI models with their own knowledge cutoffs and limitatio
 
 ## Error Handling
 - Stop and report failures whenever `codex --version` or a `codex exec` command exits non-zero; request direction before retrying.
-- Before you use high-impact flags (`--full-auto`, `--sandbox danger-full-access`, `--skip-git-repo-check`) ask the user for permission using AskUserQuestion unless it was already given. For `--skip-git-repo-check`, applicable previous approval or an explicit flag request satisfies this gate; apply step 4's Git-context and denial rules to executions and resumes. A later denial overrides previous approval or request.
+- Before you use high-impact flags (`--sandbox danger-full-access`, `--skip-git-repo-check`) ask the user for permission using AskUserQuestion unless it was already given. For `--skip-git-repo-check`, applicable previous approval or an explicit flag request satisfies this gate; apply step 4's Git-context and denial rules to executions and resumes. A later denial overrides previous approval or request.
 - When output includes warnings or partial results, summarize them and ask how to adjust using `AskUserQuestion`.

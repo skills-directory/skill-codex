@@ -51,7 +51,7 @@ Use codex to analyze this repository and suggest improvements for my claude code
 
 **Claude Code response:**
 Claude will activate the Codex skill and:
-1. Ask which model to use (`gpt-6-astra` by default; `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`; or a legacy model such as `gpt-5.5`) unless already specified in your prompt.
+1. Ask which model to use (`gpt-6-astra` by default; `gpt-6.1-sol`, `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`; or a legacy model such as `gpt-5.5`, which ChatGPT-account sign-ins reject) unless already specified in your prompt.
 2. Ask which reasoning effort level (`low`, `medium`, `high`, `xhigh`, `max`, or `ultra`, subject to the model's ceiling) unless already specified in your prompt.
 3. Select appropriate sandbox mode (defaults to `read-only` for analysis)
 4. Run a command like:
@@ -59,7 +59,6 @@ Claude will activate the Codex skill and:
 codex exec -m gpt-6-astra \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
-  --full-auto \
   "Analyze this Claude Code skill repository comprehensively..." 2>/dev/null
 ```
 This example runs inside a Git repository. Apply the [skip-flag permission gate](plugins/skill-codex/skills/codex/SKILL.md#running-a-task).
