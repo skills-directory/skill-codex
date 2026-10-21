@@ -8,9 +8,9 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 ## Running a Task
 1. For a new session (resumes inherit the prior model/effort — see step 5), ask the user (via `AskUserQuestion`) which **model** AND which **reasoning effort** to use, in a **single prompt with two questions**. When the user expresses no preference, default to `gpt-6-astra` at `high`.
    - **Model** — default `gpt-6-astra`:
-     - *GPT-6:* `gpt-6-astra` (frontier / most capable — **default**), `gpt-6.1-sol` (latest workhorse for coding and everyday work)
+     - *GPT-6:* `gpt-6-astra` (frontier / most capable — **default**), `gpt-6.1-sol` (latest workhorse for coding and everyday work), `gpt-6-sol` (previous-generation workhorse), `gpt-6-luna` (fast & affordable, easier tasks)
      - *GPT-5.6:* `gpt-5.6-sol` (reliable agentic workhorse), `gpt-5.6-terra` (balanced, everyday), `gpt-5.6-luna` (fast & affordable)
-     - *Legacy (kept for compatibility):* `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, `gpt-5.3-codex`
+     - *Legacy (rejected as unsupported when Codex is signed in with a ChatGPT account):* `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex-spark`, `gpt-5.3-codex`
    - **Reasoning effort** — default `high`: `low`, `medium`, `high`, `xhigh`, `max`, `ultra`.
      - `max`/`ultra` require a GPT-6 or GPT-5.6 model; `ultra` is only on `astra`/`sol`/`terra` (`luna` caps at `max`); legacy models cap at `xhigh`.
      - `ultra` = maximum reasoning **with automatic task delegation** (slowest and most expensive — reserve for the hardest jobs).
