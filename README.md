@@ -60,9 +60,9 @@ codex exec -m gpt-6-astra \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
   --full-auto \
-  --skip-git-repo-check \
   "Analyze this Claude Code skill repository comprehensively..." 2>/dev/null
 ```
+This example runs inside a Git repository. Apply the [skip-flag permission gate](plugins/skill-codex/skills/codex/SKILL.md#running-a-task).
 
 **Result:**
 Claude will summarize the Codex analysis output, highlighting key suggestions and asking if you'd like to continue with follow-up actions.

@@ -22,10 +22,16 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
    - `--sandbox <read-only|workspace-write|danger-full-access>`
    - `--full-auto`
    - `-C, --cd <DIR>`
-   - `--skip-git-repo-check`
+   - `--skip-git-repo-check` (only when permitted by step 4)
    - `"your prompt here"` (as final positional argument)
-4. Always use --skip-git-repo-check.
-5. When continuing a previous session, use `codex exec --skip-git-repo-check resume --last` via stdin. When resuming don't use any configuration flags unless explicitly requested by the user e.g. if he species the model or the reasoning effort when requesting to resume a session. Resume syntax: `echo "your prompt here" | codex exec --skip-git-repo-check resume --last 2>/dev/null`. All flags have to be inserted between exec and resume.
+4. Determine whether the effective target directory is inside a Git repository, including any explicit working directory such as `-C <DIR>`.
+   - Unknown Git context is unresolved, not consent; resolve it before invoking.
+   - Inside Git, omit `--skip-git-repo-check` by default; include it only for an applicable explicit request for that flag.
+   - Outside Git, include it only with applicable approval or an explicit flag request. If permission is missing, ask using `AskUserQuestion` and do not invoke until permission is given.
+   - Applicable previous approval satisfies the gate; a later denial overrides any previous approval or request. A general request to use Codex or a sandbox mode is not skip-flag approval.
+   - If denied inside Git, omit the flag and continue only if the remaining task is authorized. If denied outside Git, stop and explain the blocked invocation.
+   - Do not use an unapproved retry, fallback, or Git initialization to bypass this gate.
+5. When continuing a previous session, use `codex exec resume --last` via stdin. Resuming does not authorize `--skip-git-repo-check`; apply step 4 before each resume and add the flag only when permitted. When resuming don't use any configuration flags unless explicitly requested by the user e.g. if he species the model or the reasoning effort when requesting to resume a session. Resume syntax inside Git by default: `echo "your prompt here" | codex exec resume --last 2>/dev/null`. All flags have to be inserted between exec and resume.
 6. **IMPORTANT**: By default, append `2>/dev/null` to all `codex exec` commands to suppress thinking tokens (stderr). Only show stderr if the user explicitly requests to see thinking tokens or if debugging is needed.
 7. **IMPORTANT (stdin)**: `codex exec` always reads stdin and concatenates it with the positional prompt -- even when the prompt is fully supplied as a positional argument. If stdin is not closed, codex blocks forever. When invoking from a harness (background tasks, hooks, scripts where stdin is not a TTY but also not closed), explicitly redirect stdin: append `</dev/null` to the command, e.g. `codex exec ... "prompt" </dev/null 2>/dev/null`. Symptom of getting this wrong: zero bytes of stdout, zero CPU accumulated, process appears hung indefinitely.
 8. Run the command, capture stdout/stderr (filtered as appropriate), and summarize the outcome for the user.
@@ -37,7 +43,7 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 | Read-only review or analysis | `read-only` | `--sandbox read-only 2>/dev/null` |
 | Apply local edits | `workspace-write` | `--sandbox workspace-write --full-auto 2>/dev/null` |
 | Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access --full-auto 2>/dev/null` |
-| Resume recent session | Inherited from original | `echo "prompt" \| codex exec --skip-git-repo-check resume --last 2>/dev/null` (no flags allowed) |
+| Resume recent session | Inherited from original | `echo "prompt" \| codex exec resume --last 2>/dev/null` (inside Git by default; no configuration flags unless explicitly requested; apply step 4 to the skip flag) |
 | Run from another directory | Match task needs | `-C <DIR>` plus other flags `2>/dev/null` |
 
 ## Execution timeouts
@@ -59,7 +65,7 @@ Codex produces **no intermediate output** — it writes the result only at compl
 
 ## Following Up
 - After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
-- When resuming, pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last 2>/dev/null`. The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
+- When resuming, apply step 4's skip-flag gate and pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last 2>/dev/null` (inside Git by default). The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
 - Restate the chosen model, reasoning effort, and sandbox mode when proposing follow-up actions.
 
 ## Critical Evaluation of Codex Output
@@ -80,12 +86,12 @@ Codex is powered by OpenAI models with their own knowledge cutoffs and limitatio
 2. Provide evidence (your own knowledge, web search, docs)
 3. Optionally resume the Codex session to discuss the disagreement. **Identify yourself as Claude** so Codex knows it's a peer AI discussion. Use your actual model name (e.g., the model you are currently running as) instead of a hardcoded name:
    ```bash
-   echo "This is Claude (<your current model name>) following up. I disagree with [X] because [evidence]. What's your take on this?" | codex exec --skip-git-repo-check resume --last 2>/dev/null
+   echo "This is Claude (<your current model name>) following up. I disagree with [X] because [evidence]. What's your take on this?" | codex exec resume --last 2>/dev/null
    ```
 4. Frame disagreements as discussions, not corrections - either AI could be wrong
 5. Let the user decide how to proceed if there's genuine ambiguity
 
 ## Error Handling
 - Stop and report failures whenever `codex --version` or a `codex exec` command exits non-zero; request direction before retrying.
-- Before you use high-impact flags (`--full-auto`, `--sandbox danger-full-access`, `--skip-git-repo-check`) ask the user for permission using AskUserQuestion unless it was already given.
+- Before you use high-impact flags (`--full-auto`, `--sandbox danger-full-access`, `--skip-git-repo-check`) ask the user for permission using AskUserQuestion unless it was already given. For `--skip-git-repo-check`, applicable previous approval or an explicit flag request satisfies this gate; apply step 4's Git-context and denial rules to executions and resumes. A later denial overrides previous approval or request.
 - When output includes warnings or partial results, summarize them and ask how to adjust using `AskUserQuestion`.
